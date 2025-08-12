@@ -325,7 +325,7 @@ dataset_id = "budget_alert"
 def display_header():
     header_html = """
     <div class="dashboard-header">
-        <h1 class="dashboard-title">💰 Meta Ads Budget Monitor</h1>
+        <h1 class="dashboard-title">💰 Meta Ads Budget Monitor v1.0</h1>
         <p class="dashboard-subtitle">Real-time monitoring and analytics for Meta advertising campaigns</p>
     </div>
     """
