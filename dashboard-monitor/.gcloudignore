@@ -1,0 +1,11 @@
+# Ignore files for gcloud deployment
+.env
+.env.*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+README.md
+*.md

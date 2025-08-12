@@ -1,0 +1,6 @@
+streamlit==1.29.0
+plotly==5.18.0
+pandas==2.1.4
+google-cloud-bigquery==3.14.1
+python-dotenv==1.0.0
+pytz==2023.3

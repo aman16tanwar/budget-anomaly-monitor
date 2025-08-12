@@ -1,0 +1,55 @@
+# Cloud Build configuration for dashboard-monitor
+# This file defines the steps to build and deploy the Streamlit dashboard
+
+steps:
+  # Step 1: Build the Docker image
+  # This uses Google's docker builder to create your container
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA', '.']
+    # -t: tags the image with a name
+    # $PROJECT_ID: automatically replaced with your GCP project ID
+    # $COMMIT_SHA: Git commit hash for versioning
+    # . : build from current directory
+
+  # Step 2: Push image to Google Container Registry
+  # This stores your Docker image in GCP
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA']
+
+  # Step 3: Deploy to Cloud Run
+  # This actually runs your container as a web service
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'dashboard-monitor'  # Service name
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'  # Public access for dashboard
+      - '--memory'
+      - '2Gi'  # 2GB RAM for Streamlit
+      - '--cpu'
+      - '1'    # 1 vCPU
+      - '--timeout'
+      - '300'  # 5 minutes timeout
+      - '--max-instances'
+      - '5'    # Auto-scale up to 5 instances
+      # Environment variables from Secret Manager (we'll set this up)
+      - '--update-secrets'
+      - 'GCP_PROJECT_ID=gcp-project-id:latest'
+
+# Save the image for future use
+images:
+  - 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA'
+
+# Build timeout
+timeout: '1200s'  # 20 minutes
+
+# Use Cloud Logging
+options:
+  logging: CLOUD_LOGGING_ONLY

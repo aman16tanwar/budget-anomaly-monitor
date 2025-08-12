@@ -1,0 +1,81 @@
+# Cloud Build configuration for budget-anomaly-monitor
+# This file defines the steps to build and deploy the monitoring service
+
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/budget-anomaly-monitor:$COMMIT_SHA', '.']
+
+  # Step 2: Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/budget-anomaly-monitor:$COMMIT_SHA']
+
+  # Step 3: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'budget-anomaly-monitor'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/budget-anomaly-monitor:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--no-allow-unauthenticated'  # Requires authentication
+      - '--memory'
+      - '1Gi'
+      - '--cpu'
+      - '1'
+      - '--timeout'
+      - '600'  # 10 minutes for monitoring tasks
+      - '--max-instances'
+      - '3'
+      # Secrets from Secret Manager (more secure than env vars)
+      - '--service-account'
+      - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
+      - '--update-secrets'
+      - 'META_BUSINESS_ID=meta-business-id:latest'
+      - '--update-secrets'
+      - 'META_ACCESS_TOKEN=meta-access-token:latest'
+      - '--update-secrets'
+      - 'META_APP_SECRET=meta-app-secret:latest'
+      - '--update-secrets'
+      - 'META_APP_ID=meta-app-id:latest'
+      - '--update-secrets'
+      - 'GOOGLE_CHAT_WEBHOOK_URL=google-chat-webhook:latest'
+      - '--set-env-vars'
+      - 'GCP_PROJECT_ID=$PROJECT_ID'
+
+  # Step 4: Create Cloud Scheduler job for periodic runs
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'scheduler'
+      - 'jobs'
+      - 'create'
+      - 'http'
+      - 'budget-anomaly-monitor-schedule'
+      - '--location'
+      - 'us-central1'
+      - '--schedule'
+      - '*/5 * * * *'  # Every 5 minutes
+      - '--uri'
+      - 'https://budget-anomaly-monitor-$PROJECT_ID.uc.r.appspot.com/monitor'
+      - '--http-method'
+      - 'POST'
+      - '--oidc-service-account-email'
+      - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
+      - '--attempt-deadline'
+      - '540s'
+    # Continue even if scheduler already exists
+    allowFailure: true
+
+images:
+  - 'gcr.io/$PROJECT_ID/budget-anomaly-monitor:$COMMIT_SHA'
+
+timeout: '1200s'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
