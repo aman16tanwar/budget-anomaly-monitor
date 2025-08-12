@@ -48,30 +48,6 @@ steps:
       - '--set-env-vars'
       - 'GCP_PROJECT_ID=$PROJECT_ID'
 
-  # Step 4: Create Cloud Scheduler job for periodic runs
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'scheduler'
-      - 'jobs'
-      - 'create'
-      - 'http'
-      - 'budget-anomaly-monitor-schedule'
-      - '--location'
-      - 'us-central1'
-      - '--schedule'
-      - '*/5 * * * *'  # Every 5 minutes
-      - '--uri'
-      - 'https://budget-anomaly-monitor-$PROJECT_ID.uc.r.appspot.com/monitor'
-      - '--http-method'
-      - 'POST'
-      - '--oidc-service-account-email'
-      - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
-      - '--attempt-deadline'
-      - '540s'
-    # Continue even if scheduler already exists
-    allowFailure: true
-
 images:
   - 'gcr.io/$PROJECT_ID/budget-anomaly-monitor:$COMMIT_SHA'
 
