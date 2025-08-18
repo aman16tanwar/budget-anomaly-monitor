@@ -51,6 +51,7 @@ images:
 
 timeout: '1200s'
 
+serviceAccount: 'projects/generative-ai-418805/serviceAccounts/834340162289@cloudbuild.gserviceaccount.com'
+
 options:
   logging: CLOUD_LOGGING_ONLY
-  serviceAccount: '834340162289@cloudbuild.gserviceaccount.com'
