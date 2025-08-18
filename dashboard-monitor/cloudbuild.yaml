@@ -5,16 +5,16 @@ steps:
   # Step 1: Build the Docker image
   # This uses Google's docker builder to create your container
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dashboard-monitor:$COMMIT_SHA', 'dashboard-monitor/']
+    dir: '.'  # Run from repo root
     # -t: tags the image with a name
     # $PROJECT_ID: automatically replaced with your GCP project ID
     # $COMMIT_SHA: Git commit hash for versioning
-    # . : build from current directory
 
-  # Step 2: Push image to Google Container Registry
+  # Step 2: Push image to Artifact Registry
   # This stores your Docker image in GCP
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA']
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dashboard-monitor:$COMMIT_SHA']
 
   # Step 3: Deploy to Cloud Run
   # This actually runs your container as a web service
@@ -23,9 +23,9 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'dashboard-monitor'  # Service name
+      - 'budget-alert'  # Service name
       - '--image'
-      - 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dashboard-monitor:$COMMIT_SHA'
       - '--region'
       - 'us-central1'
       - '--platform'
@@ -45,7 +45,7 @@ steps:
 
 # Save the image for future use
 images:
-  - 'gcr.io/$PROJECT_ID/dashboard-monitor:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dashboard-monitor:$COMMIT_SHA'
 
 # Build timeout
 timeout: '1200s'  # 20 minutes

@@ -17,14 +17,12 @@ steps:
     args:
       - 'run'
       - 'jobs'
-      - 'replace'  # This will create if doesn't exist, or update if exists
+      - 'update'
       - 'budget-alert-pipeline'
       - '--image'
       - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA'
       - '--region'
       - 'us-central1'
-      - '--service-account'
-      - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
       - '--update-secrets'
       - 'META_BUSINESS_ID=meta-business-id:latest'
       - '--update-secrets'
