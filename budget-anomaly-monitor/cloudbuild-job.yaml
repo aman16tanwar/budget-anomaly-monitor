@@ -1,56 +1,77 @@
-# Cloud Build configuration for budget-anomaly-monitor as Cloud Run Job
-# This file defines the steps to build and deploy the monitoring job
+# Cloud Build configuration for budget-anomaly-monitor as a Cloud Run Job
 
 steps:
   # Step 1: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA', 'budget-anomaly-monitor/']
-    dir: '.'  # Run from repo root
+    args:
+      [
+        'build',
+        '-t',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA',
+        'budget-anomaly-monitor/'
+      ]
+    dir: '.'
 
   # Step 2: Push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA']
+    args:
+      [
+        'push',
+        'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA'
+      ]
 
-  # Step 3: Deploy as Cloud Run Job (not service)
+  # (Optional) Step 2.5: Show the active gcloud identity inside Cloud Build
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        echo "Active gcloud account in Cloud Build:"
+        gcloud auth list --filter=status:ACTIVE --format="value(account)"
+
+  # Step 3: Deploy as Cloud Run Job (create-or-update)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
-      - 'run'
-      - 'jobs'
-      - 'update'
-      - 'budget-alert-pipeline'
-      - '--image'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA'
-      - '--region'
-      - 'us-central1'
-      - '--update-secrets'
-      - 'META_BUSINESS_ID=meta-business-id:latest'
-      - '--update-secrets'
-      - 'META_ACCESS_TOKEN=meta-access-token:latest'
-      - '--update-secrets'
-      - 'META_APP_SECRET=meta-app-secret:latest'
-      - '--update-secrets'
-      - 'META_APP_ID=meta-app-id:latest'
-      - '--update-secrets'
-      - 'GOOGLE_CHAT_WEBHOOK_URL=google-chat-webhook:latest'
-      - '--set-env-vars'
-      - 'GCP_PROJECT_ID=$PROJECT_ID'
-      - '--memory'
-      - '1Gi'
-      - '--cpu'
-      - '1'
-      - '--task-timeout'
-      - '600'  # 10 minutes per execution
-      - '--max-retries'
-      - '1'
-      - '--parallelism'
-      - '1'
+      - run
+      - jobs
+      - deploy
+      - budget-alert-pipeline
+      - --image
+      - us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA
+      - --region
+      - us-central1
+      - --service-account
+      - 834340162289-compute@developer.gserviceaccount.com
+      - --set-secrets
+      - META_BUSINESS_ID=meta-business-id:latest
+      - --set-secrets
+      - META_ACCESS_TOKEN=meta-access-token:latest
+      - --set-secrets
+      - META_APP_SECRET=meta-app-secret:latest
+      - --set-secrets
+      - META_APP_ID=meta-app-id:latest
+      - --set-secrets
+      - GOOGLE_CHAT_WEBHOOK_URL=google-chat-webhook:latest
+      - --set-env-vars
+      - GCP_PROJECT_ID=$PROJECT_ID
+      - --memory
+      - 1Gi
+      - --cpu
+      - "1"
+      - --task-timeout
+      - "600"
+      - --max-retries
+      - "1"
+      - --parallelism
+      - "1"
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/budget-anomaly-monitor:$COMMIT_SHA'
 
 timeout: '1200s'
 
+# Build-time identity (your trigger can also set this; trigger setting wins if both are set)
 serviceAccount: 'projects/generative-ai-418805/serviceAccounts/834340162289@cloudbuild.gserviceaccount.com'
 
 options:
