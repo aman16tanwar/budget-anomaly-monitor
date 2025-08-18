@@ -5,6 +5,7 @@ Real-time monitoring and analytics for Meta advertising campaigns
 
 import streamlit as st
 import pandas as pd
+
 from google.cloud import bigquery
 from datetime import datetime, timedelta
 import plotly.express as px
@@ -12,14 +13,21 @@ import plotly.graph_objects as go
 import os
 from dotenv import load_dotenv
 import base64
+import contextlib
 
 # Load environment variables
 load_dotenv()
 
 # Page configuration - MUST BE FIRST
+# Load favicon if exists
+page_icon = "💰"  # Default emoji
+favicon_path = os.path.join(os.path.dirname(__file__), "favicon.png")
+if os.path.exists(favicon_path):
+    page_icon = favicon_path
+
 st.set_page_config(
     page_title="Meta Ads Budget Monitor",
-    page_icon="💰",
+    page_icon=page_icon,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -41,27 +49,62 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Custom header styling */
+    /* Custom header styling - Professional layout */
     .dashboard-header {
-        background: linear-gradient(135deg, #1a1f2e 0%, #0e1117 100%);
-        padding: 2rem;
-        margin: -1rem -1rem 2rem -1rem;
+        background: linear-gradient(90deg, #1a1f2e 0%, #0e1117 100%);
+        padding: 1.25rem 2rem;
+        margin: -1rem -1rem 1.5rem -1rem;
         border-bottom: 2px solid #4da3ff;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .dashboard-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .dashboard-logo {
+        height: 45px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
     
     .dashboard-title {
-        font-size: 2.5rem;
+        font-size: 1.75rem;
         font-weight: 700;
-        color: #4da3ff;
+        color: #ffffff;
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: -0.02em;
+    }
+    
+    .dashboard-subtitle {
+        font-size: 0.9rem;
+        color: #94a3b8;
         margin: 0;
         font-family: 'Inter', sans-serif;
     }
     
-    .dashboard-subtitle {
-        font-size: 1.1rem;
-        color: #94a3b8;
-        margin-top: 0.5rem;
+    .dashboard-header-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.25rem;
+    }
+    
+    .last-updated {
+        font-size: 0.8rem;
+        color: #64748b;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .update-time {
+        font-size: 1rem;
+        color: #4da3ff;
+        font-weight: 600;
         font-family: 'Inter', sans-serif;
     }
     
@@ -152,6 +195,7 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(77, 163, 255, 0.3);
         transform: translateY(-1px);
     }
+    
     
     /* Input field styling */
     .stTextInput > div > div > input,
@@ -309,7 +353,337 @@ st.markdown("""
         color: #22c55e;
         font-weight: 500;
     }
+    
+    /* Make sidebar toggle arrow more visible */
+    button[kind="header"] {
+        background-color: #4da3ff !important;
+        color: white !important;
+        border-radius: 50% !important;
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    button[kind="header"]:hover {
+        background-color: #2d8ff0 !important;
+        transform: scale(1.1) !important;
+        box-shadow: 0 4px 12px rgba(77, 163, 255, 0.4) !important;
+    }
+    
+    /* Style the arrow icon itself */
+    button[kind="header"] svg {
+        width: 1.25rem !important;
+        height: 1.25rem !important;
+        color: white !important;
+    }
+    
+    /* Position adjustment for better visibility */
+    .stApp > header {
+        background-color: transparent !important;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(77, 163, 255, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(77, 163, 255, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(77, 163, 255, 0);
+        }
+    }
+    
+    /* Apply animations to elements */
+    div[data-testid="metric-container"] {
+        animation: fadeIn 0.6s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    div[data-testid="metric-container"]:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+    
+    div[data-testid="metric-container"]:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    div[data-testid="metric-container"]:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+    
+    div[data-testid="metric-container"]:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+    
+    .stTabs {
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .dataframe {
+        animation: fadeIn 1s ease-out;
+    }
+    
+    .stButton > button {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    /* Smooth transitions for all interactive elements */
+    * {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Loading shimmer effect */
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+    
+    .loading-skeleton {
+        background: linear-gradient(90deg, #1a1f2e 25%, #2d3748 50%, #1a1f2e 75%);
+        background-size: 1000px 100%;
+        animation: shimmer 2s infinite;
+        border-radius: 8px;
+        height: 100%;
+        width: 100%;
+    }
+    
+    /* Number counter animation class */
+    .counting {
+        font-variant-numeric: tabular-nums;
+        animation: pulse 2s ease-out;
+    }
+    
+    /* CSS Loading spinner fallback */
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid #2d3748;
+        border-top: 4px solid #4da3ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Help button styling */
+    .help-button {
+        background-color: #2d3748;
+        color: #94a3b8;
+        border: 1px solid #4a5568;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-left: 1rem;
+    }
+    
+    .help-button:hover {
+        background-color: #4da3ff;
+        color: white;
+        border-color: #4da3ff;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(77, 163, 255, 0.3);
+    }
+    
+    /* Help modal styling */
+    .help-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    .help-modal {
+        background: #1a1f2e;
+        border: 2px solid #4da3ff;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .help-modal-header {
+        background: linear-gradient(90deg, #1a1f2e 0%, #0e1117 100%);
+        padding: 2rem;
+        border-bottom: 2px solid #2d3748;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .help-modal-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #4da3ff;
+        margin: 0;
+    }
+    
+    .help-modal-close {
+        background: #2d3748;
+        color: #94a3b8;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.25rem;
+    }
+    
+    .help-modal-close:hover {
+        background: #ef4444;
+        color: white;
+        transform: rotate(90deg);
+    }
+    
+    .help-modal-content {
+        padding: 2rem;
+    }
+    
+    .help-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #0e1117;
+        border-radius: 12px;
+        border: 1px solid #2d3748;
+    }
+    
+    .help-section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #4da3ff;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .help-section-content {
+        color: #cbd5e1;
+        line-height: 1.6;
+    }
+    
+    .help-term {
+        font-weight: 600;
+        color: #4da3ff;
+        margin-top: 0.75rem;
+    }
+    
+    .help-definition {
+        margin-left: 1rem;
+        color: #94a3b8;
+    }
+    
+    .help-metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .help-metric-item {
+        background: #1a1f2e;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #2d3748;
+    }
+    
+    .help-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
 </style>
+""", unsafe_allow_html=True)
+
+# Add JavaScript for number counting animation
+st.markdown("""
+<script>
+// Number counting animation
+function animateValue(element, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const value = Math.floor(progress * (end - start) + start);
+        element.textContent = value.toLocaleString();
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            element.textContent = end.toLocaleString();
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+// Apply to all metric values when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const metricElements = document.querySelectorAll('[data-testid="metric-value"]');
+    metricElements.forEach((element) => {
+        const finalValue = parseInt(element.textContent.replace(/[^0-9]/g, ''));
+        if (!isNaN(finalValue)) {
+            element.classList.add('counting');
+            animateValue(element, 0, finalValue, 1500);
+        }
+    });
+});
+
+</script>
 """, unsafe_allow_html=True)
 
 # Initialize BigQuery client
@@ -318,28 +692,176 @@ def init_bigquery():
     project_id = os.getenv('GCP_PROJECT_ID', 'generative-ai-418805')
     return bigquery.Client(project=project_id), project_id
 
+# Skeleton loader component with custom loader GIF
+def show_skeleton_loader(type="metric", count=1):
+    """Display skeleton loaders for different component types"""
+    # Try to load the custom loader GIF
+    loader_html = ""
+    loader_path = os.path.join(os.path.dirname(__file__), "loader.gif")
+    if os.path.exists(loader_path):
+        try:
+            with open(loader_path, "rb") as f:
+                loader_data = base64.b64encode(f.read()).decode()
+            loader_html = f'<img src="data:image/gif;base64,{loader_data}" style="width: 60px; height: 60px;">'
+        except:
+            loader_html = '<div class="loading-spinner"></div>'
+    else:
+        loader_html = '<div class="loading-spinner"></div>'
+    
+    if type == "metric":
+        cols = st.columns(count)
+        for i, col in enumerate(cols):
+            with col:
+                st.markdown(f"""
+                <div style="height: 100px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center;">
+                    {loader_html}
+                </div>
+                """, unsafe_allow_html=True)
+    elif type == "table":
+        st.markdown(f"""
+        <div style="height: 400px; margin: 1rem 0; display: flex; align-items: center; justify-content: center;">
+            {loader_html}
+        </div>
+        """, unsafe_allow_html=True)
+    elif type == "chart":
+        st.markdown(f"""
+        <div style="height: 400px; margin: 1rem 0; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+            {loader_html}
+        </div>
+        """, unsafe_allow_html=True)
+
 client, project_id = init_bigquery()
 dataset_id = "budget_alert"
 
-# Header with logo support
+# Get latest data timestamp
+@st.cache_data(ttl=60)  # Cache for 1 minute
+def get_latest_data_timestamp():
+    """Get the most recent snapshot timestamp from BigQuery"""
+    try:
+        query = f"""
+        SELECT MAX(snapshot_timestamp) as latest_timestamp
+        FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
+        """
+        result = client.query(query).to_dataframe()
+        if not result.empty and result['latest_timestamp'].iloc[0] is not None:
+            timestamp = result['latest_timestamp'].iloc[0]
+            # Convert to regular datetime if it's a BigQuery timestamp
+            if hasattr(timestamp, 'to_pydatetime'):
+                return timestamp.to_pydatetime()
+            return timestamp
+    except Exception as e:
+        st.warning(f"Could not fetch data timestamp: {str(e)}")
+    return datetime.now()  # Fallback to current time
+
+# Custom spinner with loader GIF
+@contextlib.contextmanager
+def custom_spinner(message="Loading..."):
+    """Display a custom spinner with the loader GIF"""
+    loader_path = os.path.join(os.path.dirname(__file__), "loader.gif")
+    placeholder = st.empty()
+    
+    try:
+        if os.path.exists(loader_path):
+            with open(loader_path, "rb") as f:
+                loader_data = base64.b64encode(f.read()).decode()
+            
+            placeholder.markdown(f"""
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+                        background: rgba(14, 17, 23, 0.8); z-index: 99999;">
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                            text-align: center;">
+                    <img src="data:image/gif;base64,{loader_data}" style="width: 150px; height: 150px;">
+                    <div style="color: #4da3ff; font-weight: 600; font-size: 1.25rem; margin-top: 1rem;">{message}</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            placeholder.info(f"🔄 {message}")
+        
+        yield
+    finally:
+        placeholder.empty()
+
+# Header with logo support - Professional version
 def display_header():
-    header_html = """
+    # Get actual data timestamp
+    data_timestamp = get_latest_data_timestamp()
+    
+    # Format the timestamp (data is already in PST, just labeled as UTC in BigQuery)
+    if isinstance(data_timestamp, (datetime, pd.Timestamp)):
+        # The timestamp is already PST time, just display it as such
+        formatted_time = data_timestamp.strftime('%I:%M %p PST')
+        
+        # Calculate how long ago
+        # Handle both timezone-aware and timezone-naive timestamps
+        if isinstance(data_timestamp, pd.Timestamp):
+            # Convert pandas Timestamp to naive datetime
+            data_timestamp = data_timestamp.to_pydatetime()
+            if data_timestamp.tzinfo is not None:
+                data_timestamp = data_timestamp.replace(tzinfo=None)
+        elif hasattr(data_timestamp, 'tzinfo') and data_timestamp.tzinfo is not None:
+            # Regular datetime with timezone
+            data_timestamp = data_timestamp.replace(tzinfo=None)
+        
+        now_pst = datetime.now()  # Local time is PST
+        time_diff = now_pst - data_timestamp
+        minutes_ago = int(time_diff.total_seconds() / 60)
+        
+        if minutes_ago < 1:
+            time_ago = "just now"
+        elif minutes_ago == 1:
+            time_ago = "1 minute ago"
+        elif minutes_ago < 60:
+            time_ago = f"{minutes_ago} minutes ago"
+        else:
+            hours_ago = minutes_ago // 60
+            time_ago = f"{hours_ago} hour{'s' if hours_ago > 1 else ''} ago"
+    else:
+        formatted_time = datetime.now().strftime('%I:%M %p PST')
+        time_ago = ""
+    
+    # Default header without logo
+    header_html = f"""
     <div class="dashboard-header">
-        <h1 class="dashboard-title">💰 Meta Ads Budget Monitor v1.0</h1>
-        <p class="dashboard-subtitle">Real-time monitoring and analytics for Meta advertising campaigns</p>
+        <div class="dashboard-header-left">
+            <div style="font-size: 2.5rem;">💰</div>
+            <div>
+                <h1 class="dashboard-title">Meta Ads Budget Monitor</h1>
+                <div class="dashboard-subtitle">Real-time campaign budget tracking & analytics</div>
+            </div>
+        </div>
+        <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+            <div>
+                <div class="last-updated">Data updated</div>
+                <div class="update-time">{formatted_time}</div>
+                {f'<div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">{time_ago}</div>' if time_ago else ''}
+            </div>
+        </div>
     </div>
     """
     
     # Try to load logo if it exists
-    if os.path.exists("logo.png"):
+    logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
+    if os.path.exists(logo_path):
         try:
-            with open("logo.png", "rb") as f:
+            with open(logo_path, "rb") as f:
                 logo_data = base64.b64encode(f.read()).decode()
             header_html = f"""
             <div class="dashboard-header">
-                <img src="data:image/png;base64,{logo_data}" style="height: 60px; margin-bottom: 1rem;">
-                <h1 class="dashboard-title">Meta Ads Budget Monitor</h1>
-                <p class="dashboard-subtitle">Real-time monitoring and analytics for Meta advertising campaigns</p>
+                <div class="dashboard-header-left">
+                    <img src="data:image/png;base64,{logo_data}" class="dashboard-logo" alt="Logo">
+                    <div>
+                        <h1 class="dashboard-title">Meta Ads Budget Monitor</h1>
+                        <div class="dashboard-subtitle">Real-time campaign budget tracking & analytics</div>
+                    </div>
+                </div>
+                <div class="dashboard-header-right" style="display: flex; align-items: center; gap: 1rem;">
+                    <div>
+                        <div class="last-updated">Data updated</div>
+                        <div class="update-time">{formatted_time}</div>
+                        {f'<div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">{time_ago}</div>' if time_ago else ''}
+                    </div>
+                </div>
             </div>
             """
         except:
@@ -347,11 +869,107 @@ def display_header():
     
     st.markdown(header_html, unsafe_allow_html=True)
 
+
 # Display header
 display_header()
 
+# Initialize help modal state
+if 'show_help' not in st.session_state:
+    st.session_state.show_help = False
+
+# Add help button right after header
+col1, col2, col3 = st.columns([6, 3, 1])
+with col3:
+    if st.button("❓", key="help_button", help="View documentation", type="secondary"):
+        st.session_state.show_help = not st.session_state.show_help
+
+# Show help modal if active
+if st.session_state.show_help:
+    # Create modal-like container
+    with st.container():
+        st.markdown("---")
+        st.markdown("## 📚 Help & Documentation")
+        
+        # Create tabs for different help sections
+        help_tabs = st.tabs(["🧟 Zombie Campaigns", "💰 Budget Thresholds", "📊 Metrics", "🚨 Anomalies", "💡 Tips"])
+        
+        with help_tabs[0]:
+            st.markdown("### What are Zombie Campaigns?")
+            st.info("Zombie campaigns are active campaigns with allocated budgets that cannot deliver ads effectively. They consume budget allocation without generating results.")
+            
+            st.markdown("**Common causes:**")
+            st.markdown("""
+            - No active ad sets in the campaign
+            - Ad sets exist but are paused  
+            - Ad sets have no ads
+            - All ads are paused or disapproved
+            - Technical issues preventing delivery
+            """)
+        
+        with help_tabs[1]:
+            st.markdown("### Budget Thresholds")
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.success("**💵 Normal Budget (Green)**  \nCampaigns with daily budgets below the HIGH threshold. These are considered standard spend levels.")
+            with col2:
+                st.warning("**⚠️ HIGH Budget (Orange)**  \nCampaigns exceeding the first threshold but below the VERY HIGH threshold. Requires monitoring.")
+            with col3:
+                st.error("**🚨 VERY HIGH Budget (Red)**  \nCampaigns exceeding the maximum threshold. These need immediate attention to prevent overspending.")
+        
+        with help_tabs[2]:
+            st.markdown("### Key Metrics Explained")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**👥 Total Accounts**")
+                st.caption("Number of unique Meta ad accounts being monitored")
+                
+                st.markdown("**🎯 Active Campaigns**")
+                st.caption("Campaigns currently in ACTIVE status with allocated budgets")
+                
+            with col2:
+                st.markdown("**💵 Total Daily Budget**")
+                st.caption("Sum of all daily budgets across active campaigns")
+                
+                st.markdown("**⚠️ High Budget Campaigns**")
+                st.caption("Count of campaigns exceeding the HIGH threshold")
+        
+        with help_tabs[3]:
+            st.markdown("### Anomaly Detection")
+            
+            st.error("**CRITICAL Anomalies**  \nMajor budget changes or issues requiring immediate action (e.g., 200%+ budget increase)")
+            st.warning("**WARNING Anomalies**  \nModerate changes that should be reviewed (e.g., 50-200% budget increase)")
+            st.info("**Risk Score**  \nA numerical score (0-10) indicating the severity of the anomaly. Higher scores = higher risk.")
+            
+            st.markdown("### Delivery Status Indicators")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("🟢 **Green Status** - Campaign is delivering normally")
+                st.markdown("🟡 **Yellow Status** - Some delivery issues")
+            with col2:
+                st.markdown("🟠 **Orange Status** - Significant delivery problems")
+                st.markdown("🔴 **Red Status** - Critical issue, cannot deliver")
+        
+        with help_tabs[4]:
+            st.markdown("### Tips & Best Practices")
+            st.markdown("""
+            - ✅ Review zombie campaigns daily to avoid wasted budget allocation
+            - ✅ Set appropriate budget thresholds based on your typical spend levels
+            - ✅ Investigate anomalies promptly to catch accidental budget changes
+            - ✅ Use filters to focus on specific accounts or budget ranges
+            - ✅ Monitor the "Days Active" metric to identify long-running high-budget campaigns
+            """)
+        
+        # Add close button
+        st.markdown("---")
+        if st.button("✕ Close Help", key="close_help", type="primary"):
+            st.session_state.show_help = False
+            st.rerun()
+
 # Sidebar configuration
 with st.sidebar:
+    
     st.markdown("### 🔍 Filters")
     
     # Date range selection
@@ -460,11 +1078,16 @@ if selected_accounts:
     account_filter = f"AND account_name IN ({accounts_str})"
 
 # Main content area - Summary metrics
+# Initialize session state for loading
+if 'data_loaded' not in st.session_state:
+    st.session_state.data_loaded = False
+
 col1, col2, col3, col4 = st.columns(4)
 
 try:
     # Get summary metrics
-    metrics_query = f"""
+    with custom_spinner("Loading dashboard metrics..."):
+        metrics_query = f"""
     WITH latest AS (
         SELECT 
             campaign_id,
@@ -488,21 +1111,24 @@ try:
     WHERE rn = 1
     """
     
-    metrics = client.query(metrics_query).to_dataframe().iloc[0]
+        metrics = client.query(metrics_query).to_dataframe().iloc[0]
     
     with col1:
-        st.metric("Total Accounts", f"{int(metrics['total_accounts']):,}")
+        total_accounts = metrics.get('total_accounts', 0) or 0
+        st.metric("Total Accounts", f"{int(total_accounts):,}")
     
     with col2:
-        st.metric("Active Campaigns", f"{int(metrics['total_campaigns']):,}")
+        total_campaigns = metrics.get('total_campaigns', 0) or 0
+        st.metric("Active Campaigns", f"{int(total_campaigns):,}")
     
     with col3:
-        if metrics['total_lifetime_budget'] > 0:
+        total_lifetime_budget = metrics.get('total_lifetime_budget', 0) or 0
+        if total_lifetime_budget > 0:
             # Show combined view if there are lifetime budgets
-            daily_budget = metrics['total_daily_budget']
-            lifetime_budget = metrics['total_lifetime_budget']
-            daily_count = int(metrics['daily_campaigns'])
-            lifetime_count = int(metrics['lifetime_campaigns'])
+            daily_budget = metrics.get('total_daily_budget', 0) or 0
+            lifetime_budget = metrics.get('total_lifetime_budget', 0) or 0
+            daily_count = int(metrics.get('daily_campaigns', 0) or 0)
+            lifetime_count = int(metrics.get('lifetime_campaigns', 0) or 0)
             
             st.metric(
                 "Total Budgets", 
@@ -512,10 +1138,12 @@ try:
             )
         else:
             # Show only daily budget if no lifetime budgets
-            st.metric("Total Daily Budget", f"${metrics['total_daily_budget']:,.0f}")
+            total_daily_budget = metrics.get('total_daily_budget', 0) or 0
+            st.metric("Total Daily Budget", f"${total_daily_budget:,.0f}")
     
     with col4:
-        st.metric("High Budget Campaigns", f"{int(metrics['high_budget_campaigns']):,}")
+        high_budget_campaigns = metrics.get('high_budget_campaigns', 0) or 0
+        st.metric("High Budget Campaigns", f"{int(high_budget_campaigns):,}")
 except Exception as e:
     st.error(f"Error loading metrics: {str(e)}")
 
@@ -561,7 +1189,8 @@ with tab1:
         st.warning("⚠️ No budget filters selected. Please select at least one filter to view campaigns.")
     
     try:
-        campaigns_query = f"""
+        with custom_spinner("Loading campaign data..."):
+            campaigns_query = f"""
         WITH latest AS (
             SELECT 
                 account_name,
@@ -601,7 +1230,9 @@ with tab1:
         ORDER BY account_name, budget_amount DESC
         """
         
-        campaigns_df = client.query(campaigns_query).to_dataframe()
+            campaigns_df = client.query(campaigns_query).to_dataframe()
+            import time
+            time.sleep(0.5)  # Brief delay to show loader
         
         # Apply budget filters if selected
         if len(campaigns_df) > 0:
@@ -1117,13 +1748,10 @@ with tab4:
         - Active ads within those ad sets
         """)
 
-# Footer
-st.markdown("---")
+# Compact footer
 st.markdown(
-    f"""<center style='color: #64748b; font-size: 0.875rem;'>
-    Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | 
-    Data source: BigQuery `{project_id}.{dataset_id}` | 
-    Auto-refresh every 5 minutes
-    </center>""",
+    f"""<div style='color: #64748b; font-size: 0.75rem; text-align: center; margin-top: 2rem; padding: 0.5rem 0; border-top: 1px solid #2d3748;'>
+    BigQuery: {project_id}.{dataset_id} • Auto-refresh: 5 min
+    </div>""",
     unsafe_allow_html=True
 )

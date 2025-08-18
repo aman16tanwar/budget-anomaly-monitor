@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+ui_improvements.md
+cloudbuild.yaml
+.git/
+.gitignore
+README.md
+*.log
+
+# Sensitive files - NEVER include in Docker image
+.env
+.env.*
+meta.json
+*.json
+*.key
+*.pem
+
+# Temporary/backup files
+dashboard_noauth.py
+*_backup.py
+*.bak

@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+
+# Credentials and secrets
+credentials/
+secrets/
+*.key
+*.pem
+*.cert
+*.crt
+service-account*.json
+key.json
+
+# Meta/Facebook specific
+meta.json
+facebook_credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentation
+docs/_build/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# Build artifacts
+*.pyc
+.dockerignore.bak
