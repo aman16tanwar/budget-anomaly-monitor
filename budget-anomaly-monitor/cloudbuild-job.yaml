@@ -53,3 +53,4 @@ timeout: '1200s'
 
 options:
   logging: CLOUD_LOGGING_ONLY
+  serviceAccount: '834340162289@cloudbuild.gserviceaccount.com'
