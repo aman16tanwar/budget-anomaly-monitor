@@ -39,9 +39,6 @@ steps:
       - '300'  # 5 minutes timeout
       - '--max-instances'
       - '5'    # Auto-scale up to 5 instances
-      # Environment variables from Secret Manager (we'll set this up)
-      - '--update-secrets'
-      - 'GCP_PROJECT_ID=gcp-project-id:latest'
 
 # Save the image for future use
 images:
