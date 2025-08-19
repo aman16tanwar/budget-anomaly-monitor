@@ -39,6 +39,9 @@ steps:
       - '300'  # 5 minutes timeout
       - '--max-instances'
       - '5'    # Auto-scale up to 5 instances
+      - '--clear-env-vars'  # Clear any existing environment variables
+      - '--set-env-vars'
+      - 'GCP_PROJECT_ID=generative-ai-418805'
 
 # Save the image for future use
 images:
