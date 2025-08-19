@@ -787,7 +787,7 @@ def display_header():
     # Get actual data timestamp
     data_timestamp = get_latest_data_timestamp()
     
-    # Format the timestamp (data is already in PST, just labeled as UTC in BigQuery)
+    # Format the timestamp (data is already in PST, even though BigQuery thinks it's UTC)
     if isinstance(data_timestamp, (datetime, pd.Timestamp)):
         # The timestamp is already PST time, just display it as such
         formatted_time = data_timestamp.strftime('%I:%M %p PST')
@@ -1476,12 +1476,61 @@ with tab2:
     st.markdown("### Budget Trends Analysis")
     
     try:
-        # Daily budget trend
+        # Get budget type distribution first
+        budget_type_query = f"""
+        WITH latest AS (
+            SELECT 
+                campaign_id,
+                budget_type,
+                budget_amount,
+                ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
+            FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
+            WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+            {account_filter}
+        )
+        SELECT 
+            budget_type,
+            COUNT(DISTINCT campaign_id) as campaign_count,
+            SUM(budget_amount) as total_budget
+        FROM latest
+        WHERE rn = 1
+        GROUP BY budget_type
+        """
+        
+        budget_types_df = client.query(budget_type_query).to_dataframe()
+        
+        # Show budget type summary
+        col1, col2, col3 = st.columns(3)
+        
+        daily_campaigns = budget_types_df[budget_types_df['budget_type'] == 'daily']['campaign_count'].sum() if len(budget_types_df[budget_types_df['budget_type'] == 'daily']) > 0 else 0
+        lifetime_campaigns = budget_types_df[budget_types_df['budget_type'] == 'lifetime']['campaign_count'].sum() if len(budget_types_df[budget_types_df['budget_type'] == 'lifetime']) > 0 else 0
+        daily_budget_total = budget_types_df[budget_types_df['budget_type'] == 'daily']['total_budget'].sum() if len(budget_types_df[budget_types_df['budget_type'] == 'daily']) > 0 else 0
+        lifetime_budget_total = budget_types_df[budget_types_df['budget_type'] == 'lifetime']['total_budget'].sum() if len(budget_types_df[budget_types_df['budget_type'] == 'lifetime']) > 0 else 0
+        
+        with col1:
+            st.metric("Daily Budget Campaigns", f"{int(daily_campaigns):,}", 
+                     delta=f"${daily_budget_total:,.0f} total daily spend")
+        with col2:
+            st.metric("Lifetime Budget Campaigns", f"{int(lifetime_campaigns):,}", 
+                     delta=f"${lifetime_budget_total:,.0f} total allocation")
+        with col3:
+            # Calculate effective daily spend from lifetime budgets
+            effective_daily = lifetime_budget_total / 30 if lifetime_budget_total > 0 else 0  # Assuming 30-day average
+            st.metric("Est. Combined Daily Spend", f"${(daily_budget_total + effective_daily):,.0f}",
+                     help="Daily budgets + (Lifetime budgets ÷ 30 days)")
+        
+        st.markdown("---")
+        
+        # Combined budget trends
+        st.markdown("#### Budget Trends Over Time")
+        
         trends_query = f"""
         SELECT 
             DATE(snapshot_timestamp) as date,
             SUM(CASE WHEN budget_type = 'daily' THEN budget_amount ELSE 0 END) as total_daily_budget,
-            COUNT(DISTINCT campaign_id) as campaign_count
+            SUM(CASE WHEN budget_type = 'lifetime' THEN budget_amount ELSE 0 END) as total_lifetime_budget,
+            COUNT(DISTINCT CASE WHEN budget_type = 'daily' THEN campaign_id END) as daily_campaign_count,
+            COUNT(DISTINCT CASE WHEN budget_type = 'lifetime' THEN campaign_id END) as lifetime_campaign_count
         FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
         WHERE DATE(snapshot_timestamp) BETWEEN '{start_date}' AND '{end_date}'
         {account_filter}
@@ -1492,9 +1541,10 @@ with tab2:
         trends_df = client.query(trends_query).to_dataframe()
         
         if len(trends_df) > 0:
-            # Create trend chart
+            # Create dual-axis trend chart
             fig = go.Figure()
             
+            # Daily budget on primary y-axis
             fig.add_trace(go.Scatter(
                 x=trends_df['date'],
                 y=trends_df['total_daily_budget'],
@@ -1502,72 +1552,235 @@ with tab2:
                 name='Total Daily Budget',
                 line=dict(color='#4da3ff', width=3),
                 marker=dict(size=8, color='#4da3ff'),
-                hovertemplate='Date: %{x}<br>Budget: $%{y:,.0f}<extra></extra>'
+                hovertemplate='Date: %{x}<br>Daily Budget: $%{y:,.0f}<br>Campaigns: %{customdata}<extra></extra>',
+                customdata=trends_df['daily_campaign_count'],
+                yaxis='y'
+            ))
+            
+            # Lifetime budget on secondary y-axis
+            fig.add_trace(go.Scatter(
+                x=trends_df['date'],
+                y=trends_df['total_lifetime_budget'],
+                mode='lines+markers',
+                name='Total Lifetime Budget',
+                line=dict(color='#ff6b6b', width=3),
+                marker=dict(size=8, color='#ff6b6b'),
+                hovertemplate='Date: %{x}<br>Lifetime Budget: $%{y:,.0f}<br>Campaigns: %{customdata}<extra></extra>',
+                customdata=trends_df['lifetime_campaign_count'],
+                yaxis='y2'
             ))
             
             fig.update_layout(
-                title="Daily Budget Trend",
+                title="Daily & Lifetime Budget Trends",
                 xaxis_title="Date",
-                yaxis_title="Total Daily Budget ($)",
+                yaxis=dict(
+                    title="Total Daily Budget ($)",
+                    titlefont=dict(color="#4da3ff"),
+                    tickfont=dict(color="#4da3ff")
+                ),
+                yaxis2=dict(
+                    title="Total Lifetime Budget ($)",
+                    titlefont=dict(color="#ff6b6b"),
+                    tickfont=dict(color="#ff6b6b"),
+                    overlaying='y',
+                    side='right'
+                ),
                 template="plotly_dark",
                 plot_bgcolor='rgba(0,0,0,0)',
                 paper_bgcolor='rgba(0,0,0,0)',
                 font=dict(color='#fafafa'),
                 title_font=dict(size=20, color='#4da3ff'),
                 hovermode='x unified',
-                margin=dict(l=0, r=0, t=40, b=0)
+                margin=dict(l=0, r=60, t=40, b=0),
+                legend=dict(
+                    yanchor="top",
+                    y=0.99,
+                    xanchor="left",
+                    x=0.01,
+                    bgcolor="rgba(0,0,0,0.5)"
+                )
             )
             
             st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No budget data found in the selected period")
+        
+        # Lifetime budget analysis (different visualization)
+        st.markdown("#### Lifetime Budget Campaigns - Analysis")
+        
+        lifetime_query = f"""
+        WITH latest AS (
+            SELECT 
+                campaign_id,
+                campaign_name,
+                account_name,
+                budget_amount,
+                created_time,
+                start_time,
+                stop_time,
+                ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
+            FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
+            WHERE budget_type = 'lifetime'
+            AND DATE(snapshot_timestamp) = CURRENT_DATE()
+            {account_filter}
+        )
+        SELECT 
+            campaign_id,
+            campaign_name,
+            account_name,
+            budget_amount,
+            created_time,
+            start_time,
+            stop_time,
+            CASE 
+                WHEN stop_time IS NOT NULL THEN DATE_DIFF(DATE(stop_time), DATE(start_time), DAY)
+                ELSE DATE_DIFF(CURRENT_DATE(), DATE(start_time), DAY)
+            END as campaign_duration_days
+        FROM latest
+        WHERE rn = 1
+        ORDER BY budget_amount DESC
+        LIMIT 20
+        """
+        
+        lifetime_df = client.query(lifetime_query).to_dataframe()
+        
+        if len(lifetime_df) > 0:
+            # Calculate effective daily budget for lifetime campaigns
+            lifetime_df['effective_daily_budget'] = lifetime_df.apply(
+                lambda row: row['budget_amount'] / max(row['campaign_duration_days'], 1) if row['campaign_duration_days'] > 0 else row['budget_amount'] / 30,
+                axis=1
+            )
             
-            # Top accounts by budget
-            if not selected_accounts:
-                st.markdown("### Top 10 Accounts by Budget")
-                
-                top_accounts_query = f"""
-                WITH latest AS (
-                    SELECT 
-                        account_name,
-                        campaign_id,
-                        budget_amount,
-                        budget_type,
-                        ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
-                    FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-                    WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+            # Show top lifetime budget campaigns with their effective daily spend
+            fig2 = go.Figure()
+            
+            # Bar chart showing lifetime budgets and effective daily
+            fig2.add_trace(go.Bar(
+                x=lifetime_df['campaign_name'][:10],
+                y=lifetime_df['budget_amount'][:10],
+                name='Lifetime Budget',
+                marker_color='#ff6b6b',
+                hovertemplate='%{x}<br>Lifetime: $%{y:,.0f}<extra></extra>'
+            ))
+            
+            fig2.add_trace(go.Bar(
+                x=lifetime_df['campaign_name'][:10],
+                y=lifetime_df['effective_daily_budget'][:10],
+                name='Effective Daily',
+                marker_color='#4da3ff',
+                hovertemplate='%{x}<br>Daily: $%{y:,.0f}<extra></extra>',
+                yaxis='y2'
+            ))
+            
+            fig2.update_layout(
+                title="Top 10 Lifetime Budget Campaigns",
+                xaxis_title="Campaign",
+                yaxis_title="Lifetime Budget ($)",
+                yaxis2=dict(
+                    title="Effective Daily Budget ($)",
+                    overlaying='y',
+                    side='right',
+                    showgrid=False
+                ),
+                template="plotly_dark",
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='#fafafa'),
+                title_font=dict(size=20, color='#4da3ff'),
+                margin=dict(l=0, r=60, t=40, b=100),
+                xaxis={'tickangle': -45},
+                hovermode='x unified',
+                barmode='group',
+                legend=dict(
+                    yanchor="top",
+                    y=0.99,
+                    xanchor="left",
+                    x=0.01,
+                    bgcolor="rgba(0,0,0,0.5)"
                 )
+            )
+            
+            st.plotly_chart(fig2, use_container_width=True)
+            
+        else:
+            st.info("No lifetime budget campaigns found")
+            
+        # Top accounts summary
+        if not selected_accounts:
+            st.markdown("### Top 10 Accounts by Budget Type")
+            
+            top_accounts_query = f"""
+            WITH latest AS (
                 SELECT 
                     account_name,
-                    SUM(CASE WHEN budget_type = 'daily' THEN budget_amount ELSE 0 END) as total_budget
-                FROM latest
-                WHERE rn = 1
-                GROUP BY account_name
-                ORDER BY total_budget DESC
-                LIMIT 10
-                """
+                    campaign_id,
+                    budget_amount,
+                    budget_type,
+                    ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
+                FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
+                WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+            )
+            SELECT 
+                account_name,
+                SUM(CASE WHEN budget_type = 'daily' THEN budget_amount ELSE 0 END) as daily_budget,
+                SUM(CASE WHEN budget_type = 'lifetime' THEN budget_amount ELSE 0 END) as lifetime_budget,
+                COUNT(DISTINCT CASE WHEN budget_type = 'daily' THEN campaign_id END) as daily_campaigns,
+                COUNT(DISTINCT CASE WHEN budget_type = 'lifetime' THEN campaign_id END) as lifetime_campaigns
+            FROM latest
+            WHERE rn = 1
+            GROUP BY account_name
+            ORDER BY (daily_budget + lifetime_budget/30) DESC
+            LIMIT 10
+            """
+            
+            top_df = client.query(top_accounts_query).to_dataframe()
+            
+            if len(top_df) > 0:
+                # Create stacked bar chart
+                fig3 = go.Figure()
                 
-                top_df = client.query(top_accounts_query).to_dataframe()
-                
-                fig2 = px.bar(
-                    top_df,
-                    x='total_budget',
-                    y='account_name',
+                fig3.add_trace(go.Bar(
+                    y=top_df['account_name'],
+                    x=top_df['daily_budget'],
+                    name='Daily Budget',
                     orientation='h',
-                    labels={'total_budget': 'Total Daily Budget ($)', 'account_name': 'Account'},
-                    color_discrete_sequence=['#4da3ff']
-                )
+                    marker_color='#4da3ff',
+                    hovertemplate='%{y}<br>Daily: $%{x:,.0f}<br>Campaigns: %{customdata}<extra></extra>',
+                    customdata=top_df['daily_campaigns']
+                ))
                 
-                fig2.update_layout(
+                fig3.add_trace(go.Bar(
+                    y=top_df['account_name'],
+                    x=top_df['lifetime_budget']/30,  # Show as daily equivalent
+                    name='Lifetime (÷30)',
+                    orientation='h',
+                    marker_color='#ff6b6b',
+                    hovertemplate='%{y}<br>Lifetime÷30: $%{x:,.0f}<br>Total Lifetime: $%{customdata:,.0f}<extra></extra>',
+                    customdata=top_df['lifetime_budget']
+                ))
+                
+                fig3.update_layout(
+                    title="Top Accounts by Estimated Daily Spend",
+                    xaxis_title="Estimated Daily Spend ($)",
+                    yaxis_title="Account",
                     template="plotly_dark",
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
                     font=dict(color='#fafafa'),
-                    showlegend=False,
-                    margin=dict(l=0, r=0, t=0, b=0),
+                    margin=dict(l=0, r=0, t=40, b=0),
                     xaxis=dict(gridcolor='#2d3748'),
-                    yaxis=dict(gridcolor='#2d3748')
+                    yaxis=dict(gridcolor='#2d3748'),
+                    barmode='stack',
+                    legend=dict(
+                        yanchor="top",
+                        y=0.99,
+                        xanchor="right",
+                        x=0.99,
+                        bgcolor="rgba(0,0,0,0.5)"
+                    )
                 )
                 
-                st.plotly_chart(fig2, use_container_width=True)
+                st.plotly_chart(fig3, use_container_width=True)
         else:
             st.info("No trend data available for the selected period")
     except Exception as e:
