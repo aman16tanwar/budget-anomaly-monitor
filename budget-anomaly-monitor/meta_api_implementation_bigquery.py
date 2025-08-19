@@ -633,24 +633,30 @@ class MetaBudgetMonitorBQ:
             }
             
             for anomaly in critical_anomalies[:3]:
-                widget = {
-                    "keyValue": {
-                        "topLabel": f"{anomaly['level'].upper()}: {anomaly.get('campaign_name') or anomaly.get('adset_name')}",
-                        "content": anomaly['message'],
-                        "contentMultiline": True,
-                        "button": {
-                            "textButton": {
-                                "text": "VIEW IN ADS MANAGER",
-                                "onClick": {
-                                    "openLink": {
-                                        "url": f"https://business.facebook.com/adsmanager/manage/campaigns?act={anomaly['account_id']}"
-                                    }
+                # Create a text paragraph widget to show full campaign name
+                text_widget = {
+                    "textParagraph": {
+                        "text": f"<b>{anomaly.get('account_name', 'Unknown Account')}</b><br>" +
+                                f"<b>{anomaly['level'].upper()}:</b> {anomaly.get('campaign_name') or anomaly.get('adset_name')}<br>" +
+                                f"🔴 {anomaly['message']}"
+                    }
+                }
+                critical_section["widgets"].append(text_widget)
+                
+                # Add button as separate widget
+                button_widget = {
+                    "buttons": [{
+                        "textButton": {
+                            "text": "VIEW IN ADS MANAGER",
+                            "onClick": {
+                                "openLink": {
+                                    "url": f"https://business.facebook.com/adsmanager/manage/campaigns?act={anomaly['account_id']}"
                                 }
                             }
                         }
-                    }
+                    }]
                 }
-                critical_section["widgets"].append(widget)
+                critical_section["widgets"].append(button_widget)
             
             card["cards"][0]["sections"].append(critical_section)
         
