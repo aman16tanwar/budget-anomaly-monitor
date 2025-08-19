@@ -242,6 +242,58 @@ class MetaBudgetMonitorBQ:
             result['status'] = f'❌ Error: {str(e)}'
             return result
     
+    def check_existing_unacknowledged_anomaly(self, campaign_id: str, account_id: str, 
+                                             anomaly_category: str, current_budget: float) -> bool:
+        """Check if there's already an unacknowledged anomaly for this campaign and budget"""
+        # Get current time in PST
+        from datetime import timezone
+        import pytz
+        
+        pst = pytz.timezone('America/Los_Angeles')
+        current_time_pst = datetime.now(pst)
+        current_hour_pst = current_time_pst.hour
+        
+        # Check for existing anomalies
+        # If it's around 9 AM PST (8-10 AM), allow re-alerting for anomalies older than 24 hours
+        if 8 <= current_hour_pst <= 10:
+            # During morning hours, only check for very recent duplicates (last 4 hours)
+            # This allows morning reminder alerts for unacknowledged anomalies
+            interval_hours = 4
+        else:
+            # Outside morning hours, use standard 24-hour deduplication
+            interval_hours = 24
+            
+        query = f"""
+        SELECT COUNT(*) as count
+        FROM `{self.project_id}.{self.dataset_id}.meta_anomalies`
+        WHERE campaign_id = @campaign_id
+        AND account_id = @account_id
+        AND anomaly_category = @anomaly_category
+        AND current_budget = @current_budget
+        AND acknowledged = FALSE
+        AND alert_sent = TRUE
+        AND detected_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {interval_hours} HOUR)
+        """
+        
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter("campaign_id", "STRING", campaign_id),
+                bigquery.ScalarQueryParameter("account_id", "STRING", account_id),
+                bigquery.ScalarQueryParameter("anomaly_category", "STRING", anomaly_category),
+                bigquery.ScalarQueryParameter("current_budget", "NUMERIC", current_budget),
+            ]
+        )
+        
+        try:
+            query_job = self.bq_client.query(query, job_config=job_config)
+            results = list(query_job)
+            if results and results[0]['count'] > 0:
+                return True
+        except Exception as e:
+            print(f"Error checking existing anomalies: {e}")
+        
+        return False
+    
     def get_current_state_from_bq(self, entity_id: str, entity_type: str) -> Optional[Dict]:
         """Get current state from BigQuery for comparison"""
         query = f"""
@@ -537,20 +589,26 @@ class MetaBudgetMonitorBQ:
                 
                 if time_since_creation < timedelta(hours=1):
                     if current_budget > self.config['thresholds']['new_campaign_max_budget']:
-                        anomalies.append({
-                            'anomaly_type': 'CRITICAL',
-                            'anomaly_category': 'new_campaign',
-                            'level': 'campaign',
-                            'account_id': account.get('id'),
-                            'account_name': account.get('name'),
-                            'campaign_id': campaign_id,
-                            'campaign_name': campaign.get('name'),
-                            'message': f'New campaign with unusually high budget: ${current_budget:,.2f} CAD',
-                            'current_budget': current_budget,
-                            'risk_score': 0.9,
-                            'created_outside_business_hours': created_time.hour < self.config['business_hours']['start'] or created_time.hour > self.config['business_hours']['end'],
-                            'time_since_creation_minutes': int(time_since_creation.total_seconds() / 60)
-                        })
+                        # Check if we already have an unacknowledged anomaly for this new campaign
+                        if not self.check_existing_unacknowledged_anomaly(
+                            campaign_id, account.get('id'), 'new_campaign', current_budget
+                        ):
+                            anomalies.append({
+                                'anomaly_type': 'CRITICAL',
+                                'anomaly_category': 'new_campaign',
+                                'level': 'campaign',
+                                'account_id': account.get('id'),
+                                'account_name': account.get('name'),
+                                'campaign_id': campaign_id,
+                                'campaign_name': campaign.get('name'),
+                                'message': f'New campaign with unusually high budget: ${current_budget:,.2f} CAD',
+                                'current_budget': current_budget,
+                                'risk_score': 0.9,
+                                'created_outside_business_hours': created_time.hour < self.config['business_hours']['start'] or created_time.hour > self.config['business_hours']['end'],
+                                'time_since_creation_minutes': int(time_since_creation.total_seconds() / 60)
+                            })
+                        else:
+                            print(f"Skipping duplicate alert for new campaign {campaign_id} - already has unacknowledged anomaly")
             else:
                 # Existing campaign - check for budget changes
                 previous_budget = self._convert_decimal(previous_state.get('current_budget', 0))
@@ -560,21 +618,27 @@ class MetaBudgetMonitorBQ:
                     snapshot['budget_change_percentage'] = (increase_ratio - 1) * 100
                     
                     if increase_ratio >= self.config['thresholds']['budget_increase_critical']:
-                        anomalies.append({
-                            'anomaly_type': 'CRITICAL',
-                            'anomaly_category': 'budget_increase',
-                            'level': 'campaign',
-                            'account_id': account.get('id'),
-                            'account_name': account.get('name'),
-                            'campaign_id': campaign_id,
-                            'campaign_name': campaign.get('name'),
-                            'message': f'Budget increased by {((increase_ratio - 1) * 100):.0f}%',
-                            'current_budget': current_budget,
-                            'previous_budget': previous_budget,
-                            'budget_increase_percentage': (increase_ratio - 1) * 100,
-                            'risk_score': 0.8,
-                            'created_outside_business_hours': datetime.now().hour < self.config['business_hours']['start'] or datetime.now().hour > self.config['business_hours']['end']
-                        })
+                        # Check if we already have an unacknowledged anomaly for this budget increase
+                        if not self.check_existing_unacknowledged_anomaly(
+                            campaign_id, account.get('id'), 'budget_increase', current_budget
+                        ):
+                            anomalies.append({
+                                'anomaly_type': 'CRITICAL',
+                                'anomaly_category': 'budget_increase',
+                                'level': 'campaign',
+                                'account_id': account.get('id'),
+                                'account_name': account.get('name'),
+                                'campaign_id': campaign_id,
+                                'campaign_name': campaign.get('name'),
+                                'message': f'Budget increased by {((increase_ratio - 1) * 100):.0f}%',
+                                'current_budget': current_budget,
+                                'previous_budget': previous_budget,
+                                'budget_increase_percentage': (increase_ratio - 1) * 100,
+                                'risk_score': 0.8,
+                                'created_outside_business_hours': datetime.now().hour < self.config['business_hours']['start'] or datetime.now().hour > self.config['business_hours']['end']
+                            })
+                        else:
+                            print(f"Skipping duplicate alert for campaign {campaign_id} - already has unacknowledged anomaly")
             
             # Prepare state update
             state_updates.append({
@@ -604,21 +668,28 @@ class MetaBudgetMonitorBQ:
         if not anomalies:
             return
         
+        # Filter out zombie campaign anomalies - only send budget increase notifications
+        filtered_anomalies = [a for a in anomalies if a.get('anomaly_category') != 'zombie_campaign']
+        
+        if not filtered_anomalies:
+            print("No budget-related anomalies to send to Google Chat")
+            return
+        
         webhook_url = self.config['google_chat']['webhook_url']
         if not webhook_url:
             print("❌ Google Chat webhook URL not configured")
             return
         
         # Group anomalies by severity
-        critical_anomalies = [a for a in anomalies if a['anomaly_type'] == 'CRITICAL']
-        warning_anomalies = [a for a in anomalies if a['anomaly_type'] == 'WARNING']
+        critical_anomalies = [a for a in filtered_anomalies if a['anomaly_type'] == 'CRITICAL']
+        warning_anomalies = [a for a in filtered_anomalies if a['anomaly_type'] == 'WARNING']
         
         # Create card message
         card = {
             "cards": [{
                 "header": {
                     "title": "🚨 Meta Ads Budget Alert",
-                    "subtitle": f"Detected {len(anomalies)} anomalies",
+                    "subtitle": f"Detected {len(filtered_anomalies)} budget anomalies",
                     "imageUrl": "https://www.facebook.com/images/fb_icon_325x325.png"
                 },
                 "sections": []
@@ -643,7 +714,7 @@ class MetaBudgetMonitorBQ:
                 }
                 critical_section["widgets"].append(text_widget)
                 
-                # Add button as separate widget
+                # Add button to view in Ads Manager
                 button_widget = {
                     "buttons": [{
                         "textButton": {
@@ -660,11 +731,23 @@ class MetaBudgetMonitorBQ:
             
             card["cards"][0]["sections"].append(critical_section)
         
-        # Add ML insights section
+        # Add insights and reminder info section
+        import pytz
+        pst = pytz.timezone('America/Los_Angeles')
+        current_time_pst = datetime.now(pst)
+        is_morning_reminder = 8 <= current_time_pst.hour <= 10
+        
+        insights_text = f"💡 <b>Insights:</b> Anomalies detected during {'business hours' if datetime.now().hour >= self.config['business_hours']['start'] and datetime.now().hour <= self.config['business_hours']['end'] else 'off-hours'}."
+        
+        if is_morning_reminder:
+            insights_text += "\n🌅 <b>Morning Reminder:</b> This may include unacknowledged alerts from yesterday."
+        else:
+            insights_text += "\n⏰ <b>Note:</b> Duplicate alerts are suppressed for 24 hours. Unacknowledged alerts will be reminded at 9 AM PST."
+        
         insights_section = {
             "widgets": [{
                 "textParagraph": {
-                    "text": f"💡 <b>Insights:</b> Anomalies detected during {'business hours' if datetime.now().hour >= self.config['business_hours']['start'] and datetime.now().hour <= self.config['business_hours']['end'] else 'off-hours'}. Data stored in BigQuery for ML analysis."
+                    "text": insights_text
                 }
             }]
         }
@@ -675,8 +758,8 @@ class MetaBudgetMonitorBQ:
             response = requests.post(webhook_url, json=card)
             if response.status_code == 200:
                 print(f"✅ Alert sent to Google Chat")
-                # Mark anomalies as alert_sent in BigQuery
-                self._mark_alerts_sent(anomalies)
+                # Mark anomalies as alert_sent in BigQuery (only for those actually sent)
+                self._mark_alerts_sent(filtered_anomalies)
             else:
                 print(f"❌ Failed to send Google Chat alert: {response.status_code}")
         except Exception as e:

@@ -1,0 +1,3 @@
+# Additional requirements for interactive Google Chat functionality
+flask==2.3.3
+functions-framework==3.5.0
