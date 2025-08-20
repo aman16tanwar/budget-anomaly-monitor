@@ -5,8 +5,8 @@ steps:
   # Step 1: Build the Docker image
   # This uses Google's docker builder to create your container
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dashboard-monitor:$COMMIT_SHA', 'dashboard-monitor/']
-    dir: '.'  # Run from repo root
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dashboard-monitor:$COMMIT_SHA', '.']
+    dir: 'dashboard-monitor'  # Run from dashboard-monitor directory
     # -t: tags the image with a name
     # $PROJECT_ID: automatically replaced with your GCP project ID
     # $COMMIT_SHA: Git commit hash for versioning
@@ -39,6 +39,8 @@ steps:
       - '300'  # 5 minutes timeout
       - '--max-instances'
       - '5'    # Auto-scale up to 5 instances
+      - '--set-env-vars'
+      - 'GCP_PROJECT_ID=$PROJECT_ID'
 
 # Save the image for future use
 images:
