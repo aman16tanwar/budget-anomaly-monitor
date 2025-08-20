@@ -16,7 +16,20 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dashboard-monitor:$COMMIT_SHA']
 
-  # Step 3: Deploy to Cloud Run
+  # Step 3: Clear existing environment variables
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'services'
+      - 'update'
+      - 'budget-alert'
+      - '--region'
+      - 'us-central1'
+      - '--clear-env-vars'
+      - '--clear-secrets'
+      
+  # Step 4: Deploy to Cloud Run with fresh configuration
   # This actually runs your container as a web service
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
