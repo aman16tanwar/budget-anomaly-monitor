@@ -50,6 +50,24 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
+    /* Remove top padding/margin from Streamlit app */
+    .main > div {
+        padding-top: 0rem !important;
+    }
+    
+    .stApp > div > div {
+        padding-top: 0rem !important;
+    }
+    
+    /* Remove default Streamlit header space */
+    .stApp [data-testid="stToolbar"] {
+        display: none !important;
+    }
+    
+    .stApp [data-testid="stHeader"] {
+        display: none !important;
+    }
+    
     /* Custom header styling - Professional layout */
     .dashboard-header {
         background: linear-gradient(90deg, #1a1f2e 0%, #0e1117 100%);
@@ -1530,15 +1548,27 @@ with tab2:
         st.markdown("#### Budget Trends Over Time")
         
         trends_query = f"""
+        WITH daily_latest AS (
+            SELECT 
+                DATE(snapshot_timestamp) as date,
+                campaign_id,
+                campaign_name,
+                account_name,
+                budget_amount,
+                budget_type,
+                ROW_NUMBER() OVER (PARTITION BY DATE(snapshot_timestamp), campaign_id ORDER BY snapshot_timestamp DESC) as rn
+            FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
+            WHERE DATE(snapshot_timestamp) BETWEEN '{start_date}' AND '{end_date}'
+            {account_filter}
+        )
         SELECT 
-            DATE(snapshot_timestamp) as date,
+            date,
             SUM(CASE WHEN budget_type = 'daily' THEN budget_amount ELSE 0 END) as total_daily_budget,
             SUM(CASE WHEN budget_type = 'lifetime' THEN budget_amount ELSE 0 END) as total_lifetime_budget,
             COUNT(DISTINCT CASE WHEN budget_type = 'daily' THEN campaign_id END) as daily_campaign_count,
             COUNT(DISTINCT CASE WHEN budget_type = 'lifetime' THEN campaign_id END) as lifetime_campaign_count
-        FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-        WHERE DATE(snapshot_timestamp) BETWEEN '{start_date}' AND '{end_date}'
-        {account_filter}
+        FROM daily_latest
+        WHERE rn = 1
         GROUP BY date
         ORDER BY date
         """
