@@ -14,6 +14,7 @@ import os
 from dotenv import load_dotenv
 import base64
 import contextlib
+import pytz
 
 # Load environment variables
 load_dotenv()
@@ -787,24 +788,28 @@ def display_header():
     # Get actual data timestamp
     data_timestamp = get_latest_data_timestamp()
     
-    # Format the timestamp (data is already in PST, even though BigQuery thinks it's UTC)
+    # Convert UTC timestamp from BigQuery to PST for display
     if isinstance(data_timestamp, (datetime, pd.Timestamp)):
-        # The timestamp is already PST time, just display it as such
-        formatted_time = data_timestamp.strftime('%I:%M %p PST')
-        
-        # Calculate how long ago
-        # Handle both timezone-aware and timezone-naive timestamps
+        # Convert to datetime if it's a pandas Timestamp
         if isinstance(data_timestamp, pd.Timestamp):
-            # Convert pandas Timestamp to naive datetime
             data_timestamp = data_timestamp.to_pydatetime()
-            if data_timestamp.tzinfo is not None:
-                data_timestamp = data_timestamp.replace(tzinfo=None)
-        elif hasattr(data_timestamp, 'tzinfo') and data_timestamp.tzinfo is not None:
-            # Regular datetime with timezone
-            data_timestamp = data_timestamp.replace(tzinfo=None)
         
-        now_pst = datetime.now()  # Local time is PST
-        time_diff = now_pst - data_timestamp
+        # BigQuery returns UTC timestamps as timezone-naive, so we need to localize
+        if data_timestamp.tzinfo is None:
+            # Localize as UTC first
+            utc = pytz.UTC
+            data_timestamp = utc.localize(data_timestamp)
+        
+        # Convert to PST
+        pst = pytz.timezone('America/Los_Angeles')
+        data_timestamp_pst = data_timestamp.astimezone(pst)
+        
+        # Format the PST time
+        formatted_time = data_timestamp_pst.strftime('%I:%M %p PST')
+        
+        # Calculate how long ago using PST times
+        now_pst = datetime.now(pst)
+        time_diff = now_pst - data_timestamp_pst
         minutes_ago = int(time_diff.total_seconds() / 60)
         
         if minutes_ago < 1:
