@@ -1119,7 +1119,7 @@ try:
             budget_type,
             ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
         FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-        WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+        WHERE DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")) = CURRENT_DATE("America/Los_Angeles")
         {account_filter}
     )
     SELECT 
@@ -1231,7 +1231,7 @@ with tab1:
                 adsets_with_active_ads,
                 ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
             FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-            WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+            WHERE DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")) = CURRENT_DATE("America/Los_Angeles")
             AND budget_amount >= {min_budget}
             {account_filter}
         )
@@ -1508,7 +1508,7 @@ with tab2:
                 budget_amount,
                 ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
             FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-            WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+            WHERE DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")) = CURRENT_DATE("America/Los_Angeles")
             {account_filter}
         )
         SELECT 
@@ -1550,15 +1550,19 @@ with tab2:
         trends_query = f"""
         WITH daily_latest AS (
             SELECT 
-                DATE(snapshot_timestamp) as date,
+                DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")) as date,
                 campaign_id,
                 campaign_name,
                 account_name,
                 budget_amount,
                 budget_type,
-                ROW_NUMBER() OVER (PARTITION BY DATE(snapshot_timestamp), campaign_id ORDER BY snapshot_timestamp DESC) as rn
+                snapshot_timestamp,
+                ROW_NUMBER() OVER (
+                    PARTITION BY DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")), campaign_id 
+                    ORDER BY snapshot_timestamp DESC
+                ) as rn
             FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-            WHERE DATE(snapshot_timestamp) BETWEEN '{start_date}' AND '{end_date}'
+            WHERE DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")) BETWEEN '{start_date}' AND '{end_date}'
             {account_filter}
         )
         SELECT 
@@ -1753,7 +1757,7 @@ with tab2:
                     budget_type,
                     ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
                 FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-                WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+                WHERE DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")) = CURRENT_DATE("America/Los_Angeles")
             )
             SELECT 
                 account_name,
@@ -1918,7 +1922,7 @@ with tab4:
                 adsets_with_active_ads,
                 ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY snapshot_timestamp DESC) as rn
             FROM `{project_id}.{dataset_id}.meta_campaign_snapshots`
-            WHERE DATE(snapshot_timestamp) = CURRENT_DATE()
+            WHERE DATE(DATETIME(snapshot_timestamp, "America/Los_Angeles")) = CURRENT_DATE("America/Los_Angeles")
             AND campaign_status = 'ACTIVE'
             {account_filter}
         )
