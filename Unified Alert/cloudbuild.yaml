@@ -40,7 +40,7 @@ steps:
       - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
       # Environment variables for both platforms
       - '--set-env-vars'
-      - 'GCP_PROJECT_ID=$PROJECT_ID,GOOGLE_APPLICATION_CREDENTIALS=/app/meta.json'
+      - 'GCP_PROJECT_ID=$PROJECT_ID'
       # Secrets from Secret Manager (more secure than env vars)
       - '--update-secrets'
       - 'META_BUSINESS_ID=meta-business-id:latest'
