@@ -11,29 +11,29 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/unified-budget-monitor:$COMMIT_SHA']
 
-  # Step 3: Deploy to Cloud Run Jobs
+  # Step 3: Deploy to Cloud Run Service (like Meta Ads)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
-      - 'jobs'
       - 'deploy'
       - 'unified-budget-monitor'
       - '--image'
       - 'gcr.io/$PROJECT_ID/unified-budget-monitor:$COMMIT_SHA'
       - '--region'
       - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--no-allow-unauthenticated'  # Requires authentication
       - '--memory'
       - '2Gi'
       - '--cpu'
       - '1'
-      - '--task-timeout'
+      - '--timeout'
       - '900'  # 15 minutes for monitoring both platforms
-      - '--max-retries'
-      - '3'
-      - '--parallelism'
-      - '1'
-      # Service account with required permissions
+      - '--max-instances'
+      - '1'  # Keep it simple like Meta Ads
+      # Service account with required permissions (same as Meta Ads)
       - '--service-account'
       - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
       # Environment variables for both platforms
