@@ -1,0 +1,268 @@
+descriptive_name,currency_code,level,id,status,time_zone,manager
+zzz - Tourism Sun Peaks,USD,2,4506575607,CANCELED,America/Denver,False
+zClient CC - The Mark CN,CAD,2,9520321580,CANCELED,America/Vancouver,False
+westvanrec,CAD,1,4349090388,ENABLED,America/Vancouver,False
+Zhi Herbals,CAD,1,1005776682,ENABLED,America/Vancouver,False
+Z-Client-CC-OnniCentral,CAD,2,9274339412,CANCELED,America/Vancouver,False
+Wiegele 04/11/19,CAD,1,6856413774,ENABLED,America/Vancouver,False
+Whitecapsfc.com,CAD,1,1956565472,CANCELED,America/Vancouver,False
+Westhills BC (Old),CAD,1,9976592014,ENABLED,America/Vancouver,False
+Wesgroup - Branded,CAD,1,7857299321,CANCELED,America/St_Johns,False
+War Room Test USD - Final,USD,1,9084059047,CANCELED,America/Phoenix,False
+War Room Test - USD,CAD,1,6121646544,CANCELED,America/Phoenix,False
+WR - Zhi Herbals,CAD,1,9454468113,ENABLED,America/Vancouver,False
+WR - Whitecaps FC,CAD,1,7228009205,ENABLED,America/Vancouver,False
+WR - Whistler Medical Aesthetics,CAD,1,6940748095,ENABLED,America/Vancouver,False
+WR - Westhills,CAD,1,5294855745,ENABLED,America/Vancouver,False
+WR - West Coast Soaring Club - Ad Grant,USD,1,6976403919,ENABLED,America/Los_Angeles,False
+WR - Wesgroup - The Nelson,CAD,2,1320797609,ENABLED,America/Vancouver,False
+WR - Wesgroup - One Fifty Braid,CAD,2,2674012633,ENABLED,America/Vancouver,False
+WR - Wesgroup - Mode,CAD,2,1143405000,ENABLED,America/Whitehorse,False
+WR - Wesgroup - Inlet District,CAD,2,7641275335,ENABLED,America/Vancouver,False
+WR - Wesgroup - Harlin,CAD,2,2272232841,ENABLED,America/Vancouver,False
+WR - Wesgroup - Fynn,CAD,2,6043178545,ENABLED,America/Vancouver,False
+WR - Wesgroup - Fynn,CAD,2,7815211344,CANCELED,America/Vancouver,False
+WR - Wesgroup - Fynn,CAD,2,8215628503,CANCELED,America/Vancouver,False
+WR - Wesgroup - Dunbar at 39th,CAD,2,1952316546,ENABLED,America/Vancouver,False
+WR - Wesgroup - Briar Block,CAD,2,6039606699,CANCELED,America/Vancouver,False
+WR - Wesgroup - Ardea,CAD,2,2213759233,ENABLED,America/Vancouver,False
+WR - Wesgroup,CAD,1,3265917243,ENABLED,America/Vancouver,True
+WR - Wave Skin Care,CAD,1,1088889517,ENABLED,America/Vancouver,False
+WR - War Room,CAD,1,1581068606,ENABLED,America/Vancouver,False
+WR - Voltsafe,CAD,1,7198678325,ENABLED,America/Vancouver,False
+WR - Vetta Nordic Spa,CAD,1,1617406386,ENABLED,America/Vancouver,False
+WR - Vanex Group,CAD,1,4171513642,ENABLED,America/Vancouver,False
+WR - V2V Vacations,CAD,1,7166753566,ENABLED,America/Vancouver,False
+WR - University of Metaphysical Sciences (UMS) - Ad Grant,USD,1,2246822346,ENABLED,America/Vancouver,False
+WR - US Club Soccer - Ad Grant,USD,1,7600457494,ENABLED,America/Los_Angeles,False
+WR - Tyax Lodge & Heliskiing,CAD,1,1289010703,ENABLED,America/Vancouver,False
+WR - Tripster,CAD,1,2296530107,ENABLED,America/Vancouver,False
+WR - Trippzy,CAD,1,3489236346,CANCELED,America/Vancouver,False
+WR - Tourism Tofino,CAD,1,5678811328,ENABLED,America/Vancouver,False
+WR - Tourism Sun Peaks,CAD,1,2279966317,ENABLED,America/Vancouver,False
+WR - Tourism Smithers - Ad Grant,USD,1,6928698009,ENABLED,America/Vancouver,False
+WR - Tourism Kamloops,CAD,1,6355158684,ENABLED,America/Whitehorse,False
+WR - Tourism Golden - Ad Grant,USD,1,1646743219,ENABLED,America/Vancouver,False
+WR - Tourism Golden,CAD,1,6145285327,ENABLED,America/Edmonton,False
+WR - Tourism Burnaby - Ad Grant,USD,1,1946611812,ENABLED,America/Vancouver,False
+WR - Tourism Burnaby,CAD,1,5023405877,ENABLED,America/Vancouver,False
+WR - Tour the Triangle,CAD,1,4337871692,CANCELED,America/Whitehorse,False
+WR - Three Bars Ranch,CAD,1,6174023386,ENABLED,America/Vancouver,False
+WR - The Bay Centre,CAD,1,2772277426,ENABLED,America/Vancouver,False
+WR - Test Account,CAD,1,5178436158,CANCELED,America/Vancouver,False
+WR - Test (Old),CAD,1,5189014791,CANCELED,America/Vancouver,False
+WR - TOTA - Ad Grant,USD,1,8656567601,ENABLED,America/Vancouver,False
+WR - Sunshine Coast Tourism - Ad Grant,USD,1,3487504813,ENABLED,America/Vancouver,False
+WR - Sun Peaks Resort,CAD,1,1424722287,ENABLED,America/Vancouver,False
+WR - Sun Peaks Grand,CAD,1,7990396233,ENABLED,America/Vancouver,False
+WR - Subway,CAD,1,5263397958,ENABLED,America/Vancouver,False
+WR - Spur Alliance,CAD,1,1630426117,ENABLED,America/Vancouver,False
+WR - SkiBig3,CAD,1,8759072899,ENABLED,America/Edmonton,False
+WR - Ski Canada,CAD,1,8318723115,ENABLED,America/Vancouver,False
+WR - SilverStar Mountain Resort,CAD,1,1084543947,ENABLED,America/Vancouver,False
+WR - Shearwater Resort,CAD,1,7170919131,ENABLED,America/Vancouver,False
+WR - Scorpion USA,CAD,1,4890767235,ENABLED,America/Vancouver,False
+WR - Science World - Ad Grant,USD,1,9706902787,ENABLED,America/Vancouver,False
+WR - Science World,CAD,1,2206145890,ENABLED,America/Vancouver,False
+WR - SMUS,CAD,1,7602233753,ENABLED,America/Vancouver,False
+WR - Ridebooker,CAD,1,5884834089,ENABLED,America/Vancouver,False
+WR - Rego Realty,CAD,1,7644040882,ENABLED,America/Vancouver,False
+WR - RDS,CAD,1,7921619510,ENABLED,America/Vancouver,False
+WR - Pristine Gemstone,CAD,1,2356217434,ENABLED,America/Vancouver,False
+WR - Polygon Homes,CAD,1,2314990750,ENABLED,America/Vancouver,False
+WR - Points West Community Bank,CAD,1,9988530794,ENABLED,America/Vancouver,False
+WR - Pimlico,CAD,1,5624033524,ENABLED,America/Vancouver,False
+WR - Paul's Motor Inn,CAD,1,4437728592,ENABLED,America/Vancouver,False
+WR - Parksville Qualicum Beach - Ad Grant,USD,1,6069257040,ENABLED,America/Dawson,False
+WR - Parksville Qualicum Beach,CAD,1,7164713350,ENABLED,America/Vancouver,False
+WR - PacificGold Homes,CAD,1,4333598435,ENABLED,America/Vancouver,False
+WR - Osoyoos Indian Band,CAD,1,5838155935,ENABLED,America/Vancouver,False
+WR - Onni Group,CAD,1,4828533529,ENABLED,America/Vancouver,False
+WR - OneCoffee,CAD,1,1038898929,ENABLED,America/Vancouver,False
+WR - Oceanside Village Resort,CAD,1,6737874584,ENABLED,America/Vancouver,False
+WR - North Thompson Valley,CAD,1,2580271631,ENABLED,America/Vancouver,False
+WR - Newcomers Canada,CAD,1,2469512942,ENABLED,America/Vancouver,False
+WR - Nemiah Valley Resort - Not Use,CAD,1,2617193427,ENABLED,America/Vancouver,True
+WR - Nemiah Valley Resort,CAD,1,8597567935,CANCELED,America/Vancouver,False
+WR - Nemiah Valley Lodge,CAD,1,9114869897,CANCELED,America/Vancouver,False
+WR - Nelson Kootenay Tourism - Ad Grant,USD,1,3481645250,CLOSED,America/Vancouver,False
+WR - Mountain Bike Tourism Association - Ad Grant,USD,1,2250860476,ENABLED,America/Vancouver,False
+WR - Mount Washington Alpine Resort,CAD,1,4542411849,ENABLED,America/Vancouver,False
+WR - Mount Arrowsmith Biosphere Region,CAD,1,8446576107,ENABLED,America/Vancouver,False
+WR - Mike Wiegele,CAD,1,8729190650,ENABLED,America/Vancouver,False
+WR - Meatme,CAD,1,6888154811,ENABLED,America/Vancouver,False
+WR - Maple Leaf Education,CAD,1,8524681379,ENABLED,America/Vancouver,False
+WR - Kasba Lake Lodge,CAD,1,4713892072,ENABLED,America/Vancouver,False
+WR - KAV Sports,CAD,1,5340528993,CANCELED,America/Vancouver,False
+WR - Investing News Network - DELETE,CAD,1,6737763558,CANCELED,America/Vancouver,False
+WR - Investing News Network,CAD,1,6019860554,ENABLED,America/Vancouver,False
+WR - Inn At Laurel Point,CAD,1,7704799458,ENABLED,America/Vancouver,False
+WR - Indigenous Tourism BC,CAD,1,3102215092,ENABLED,America/Vancouver,False
+WR - ISSofBC,CAD,1,3033610633,ENABLED,America/Whitehorse,False
+WR - Hourigans,CAD,1,8940553169,ENABLED,America/Vancouver,False
+WR - Hotel Zed,CAD,1,8026935299,ENABLED,America/Vancouver,False
+WR - Hotel X Toronto,CAD,1,4869839923,ENABLED,America/Toronto,False
+WR - Horseshoe Resort,CAD,1,2011166998,ENABLED,America/Vancouver,False
+WR - Home District,CAD,1,9257599492,CANCELED,America/Vancouver,False
+WR - Guerlain Spa​,CAD,1,9467022448,ENABLED,America/Toronto,False
+WR - Grouse Mountain Resort,CAD,1,6816482670,ENABLED,America/Vancouver,False
+WR - Function Point,CAD,1,3711936812,ENABLED,America/Vancouver,False
+WR - Forward Technology,CAD,1,7290769262,ENABLED,America/Vancouver,False
+WR - Fisgard Asset Management,CAD,1,5535944656,ENABLED,America/Vancouver,False
+WR - FedFedFed Inc.,CAD,1,1451622795,ENABLED,America/Vancouver,False
+WR - Enersight,CAD,1,6671846034,ENABLED,America/Vancouver,False
+WR - Eminence Organic Skin Care,CAD,1,7330207213,CANCELED,America/Vancouver,False
+WR - Duttons,CAD,1,1351733132,ENABLED,America/Vancouver,False
+WR - Duo Bakery,CAD,1,2632119201,ENABLED,America/Vancouver,False
+WR - Discount Vape Pen,CAD,1,8874839566,CANCELED,America/Vancouver,False
+WR - Digital Dispatch Systems,CAD,1,7745424882,ENABLED,America/Vancouver,False
+WR - Destination Silver Star,CAD,1,8390583203,CANCELED,America/Vancouver,False
+WR - Destination Greater Tourism,CAD,1,2468046559,ENABLED,America/Vancouver,False
+WR - Deerhurst,CAD,1,8458346850,ENABLED,America/Vancouver,False
+WR - Crowsnest Scenic 3,CAD,1,8326493293,CANCELED,America/Vancouver,False
+WR - Credit Counselling Society,CAD,1,2473816725,CANCELED,America/Vancouver,False
+WR - Concord Pacific,CAD,1,4607687996,ENABLED,America/Vancouver,False
+WR - Cleveland Clinic Canada,CAD,1,2808683582,ENABLED,America/Vancouver,False
+WR - City of Auburn,CAD,1,6279691196,ENABLED,America/Vancouver,False
+WR - Canucks,CAD,1,3387731757,ENABLED,America/Vancouver,False
+WR - Canada Soccer,CAD,1,7544332998,ENABLED,America/Vancouver,False
+WR - CMH,CAD,1,3080147980,ENABLED,America/Whitehorse,False
+WR - CGIS,CAD,1,3005488672,ENABLED,America/Vancouver,False
+WR - CAIS Boarding School,CAD,1,8918560904,ENABLED,America/Vancouver,False
+WR - Big Bar Guest Ranch,CAD,1,2243776203,ENABLED,America/Vancouver,False
+WR - Bella Coola Heli Sports,CAD,1,3243943090,ENABLED,America/Vancouver,False
+WR - Bear Valley,CAD,1,4951379186,ENABLED,America/Vancouver,False
+WR - Banff Lake Louise Tourism,CAD,1,3254914348,ENABLED,America/Vancouver,False
+WR - BC Parks Foundation - Ad Grant,USD,1,5121268068,ENABLED,America/Vancouver,False
+WR - BC Parks Foundation,CAD,1,3271306715,ENABLED,America/Vancouver,False
+WR - BC Lions,CAD,1,7869407160,ENABLED,America/Vancouver,False
+WR - BC Guest Ranchers - Ad Grant,USD,1,1957890993,SUSPENDED,America/Los_Angeles,False
+WR - Aura,CAD,1,5322102956,ENABLED,America/Vancouver,False
+WR - Arbor Metals,CAD,1,2987414366,ENABLED,America/Vancouver,False
+WR - Adidas,CAD,1,5154738161,ENABLED,America/Vancouver,False
+WR - Accord Financial,CAD,1,4933058780,CANCELED,America/Vancouver,False
+WR - Accent Inns,CAD,1,3368816539,ENABLED,America/Vancouver,False
+WR - APRIO,CAD,1,3003952312,ENABLED,America/Vancouver,False
+WR - 10XTO,CAD,1,5567399949,ENABLED,America/Vancouver,False
+Villa Torre Bianca by Emily Hotels,USD,2,3141516011,ENABLED,America/New_York,False
+Victoria Tourism,CAD,1,7765021668,CANCELED,America/Vancouver,False
+VANEX,CAD,1,8956882135,ENABLED,America/Vancouver,False
+University of Metaphysical Sciences (Old),USD,1,4426685248,ENABLED,America/Los_Angeles,False
+Tweedsmuir Park Lodge,CAD,1,5407537556,CANCELED,America/Vancouver,False
+Tsawwassen Landing,CAD,2,2213928037,CANCELED,America/Vancouver,False
+Tourism Tofino (Old),CAD,1,7243049424,ENABLED,America/Vancouver,False
+"Tourism Sun Peaks $18,000 / $592.10",USD,2,5053972593,ENABLED,America/Vancouver,False
+Tourism Golden,CAD,1,4813363916,ENABLED,America/Edmonton,False
+The Pavilion - Onni,CAD,2,3644649982,CANCELED,America/Vancouver,False
+The Lloyd - CAD,CAD,2,7184836184,CANCELED,America/Vancouver,False
+The Library Hotel Collection,USD,1,2465364816,ENABLED,America/New_York,False
+The LLoyd,CAD,2,4158161315,ENABLED,America/Vancouver,False
+The Hudson - USD,USD,2,4032029623,ENABLED,America/Los_Angeles,False
+The Grande at Suter Brook,CAD,2,2951012700,CANCELED,America/Vancouver,False
+TexXToronto,CAD,1,4402956115,CANCELED,America/Toronto,False
+TEST,USD,2,7561090956,ENABLED,America/Phoenix,False
+Sun Peaks Grand Hotel & Conference Centre,CAD,1,5796170867,CANCELED,America/Toronto,False
+Studio House,CAD,2,6722975094,CANCELED,America/Vancouver,False
+Store Room,CAD,2,2107202225,CANCELED,America/Vancouver,False
+Steveston Waterfront Hotel,CAD,2,6574547937,ENABLED,America/Vancouver,False
+SkiBig3 Display/Video,CAD,1,7389295821,ENABLED,America/Edmonton,False
+SkiBig3,CAD,1,5944467335,SUSPENDED,America/Edmonton,False
+Ski Canada,CAD,1,2730001427,ENABLED,America/Toronto,True
+Silverstar Mountain Resort - Local,CAD,2,6843214303,ENABLED,America/Edmonton,False
+SilverStar Ad Manager Account,CAD,1,2796041623,ENABLED,America/Vancouver,True
+Silk Road Tea,CAD,1,1757104593,ENABLED,America/Vancouver,False
+Shuswap Tourism,CAD,1,1595430392,ENABLED,America/Vancouver,False
+Shearwater Resort & Marina,CAD,1,2377119868,CANCELED,America/Vancouver,False
+Selva,USD,2,3756071149,ENABLED,America/Los_Angeles,False
+ScorpionExo USA,USD,1,4111793845,ENABLED,America/Los_Angeles,False
+Science World (DON'T USE),USD,1,4979358006,ENABLED,America/Vancouver,False
+Sakana Sushi,CAD,2,5718789625,CANCELED,America/Vancouver,False
+Riva,CAD,2,2217207101,ENABLED,America/Vancouver,False
+Riva,CAD,2,6954261252,ENABLED,America/Vancouver,False
+Revelstoke Charter Flights,CAD,1,8199501066,CANCELED,America/Vancouver,False
+Resorts of the Canadian Rockies,CAD,2,8508223470,ENABLED,America/Edmonton,False
+Residences at Fremont Village,CAD,2,7001352427,CANCELED,America/Vancouver,False
+Rent Evan,CAD,2,9686847051,CANCELED,America/Vancouver,False
+Rent Capilano - CAD,CAD,2,2046127945,ENABLED,America/Vancouver,False
+Rego Realty,CAD,1,9253039218,CANCELED,America/Toronto,False
+Pristine (Old),CAD,1,8755436271,ENABLED,America/Toronto,False
+Polygon Homes (ENG),CAD,1,2952039733,ENABLED,America/Vancouver,False
+Points West Community Bank,USD,1,9743648675,ENABLED,America/Denver,False
+Pine & Glen,CAD,2,9769613093,ENABLED,America/Whitehorse,False
+PHX Apartments - Pheonix,USD,2,4852209497,ENABLED,America/Phoenix,False
+PHX Apartments - Mesa,USD,2,1214058993,ENABLED,America/Phoenix,False
+Our Place Society - GRANT,USD,1,6847397467,ENABLED,America/Vancouver,False
+Onni SMB Hollywood,USD,2,1650846346,ENABLED,America/Los_Angeles,False
+Onni Master,CAD,1,5047579240,ENABLED,America/Vancouver,True
+Onni Fulton Market - USD,USD,2,2898017266,ENABLED,America/Los_Angeles,False
+Onni East Village - USD,USD,2,3666188042,ENABLED,America/Los_Angeles,False
+Onni Corporate - 2017,CAD,2,1318036639,CANCELED,America/Vancouver,False
+Onni Corporate,CAD,2,8302848429,CANCELED,America/Vancouver,False
+Onni - Hudson Chicago,CAD,2,2868040727,CANCELED,America/Vancouver,False
+Onni - Allwood Place,CAD,2,3599207186,ENABLED,America/Vancouver,False
+Olympic + Hill,USD,2,4444798988,ENABLED,America/Los_Angeles,False
+Old Town Park - USD,USD,2,3794041254,ENABLED,America/Los_Angeles,False
+Old Town Park,CAD,2,2319484293,CANCELED,America/Chicago,False
+OSLU - USD,USD,2,7864834500,ENABLED,America/Los_Angeles,False
+Northwest,CAD,2,7309655812,CANCELED,America/Vancouver,False
+Nemiah Valley Resort,CAD,1,1130427411,CANCELED,America/Vancouver,False
+Nature's Walk,CAD,2,2238392817,ENABLED,America/Whitehorse,False
+Nature's Walk,CAD,2,2528969262,CANCELED,America/Vancouver,False
+Mountain Bike Tourism Association,CAD,1,7262751641,ENABLED,America/Vancouver,False
+Mount Washington,USD,1,4409450241,ENABLED,America/Los_Angeles,False
+LevelCN,CAD,2,4262580427,CANCELED,America/Vancouver,False
+Level Long Beach - East Village,USD,2,2380546935,ENABLED,America/Los_Angeles,False
+Level Hollywood,USD,2,6463476405,ENABLED,America/Los_Angeles,False
+Level,CAD,2,3971415378,CANCELED,America/Vancouver,False
+LEVEL Vancouver - CAD,CAD,2,6146657595,ENABLED,America/Vancouver,False
+LEVEL Los Angeles - USD,USD,2,9887665323,ENABLED,America/New_York,False
+LEVEL Los Angeles - USD,USD,2,3541926011,CANCELED,America/Los_Angeles,False
+LEVEL Chicago Old Town,CAD,2,3507698342,ENABLED,America/Chicago,False
+LEVEL Chicago - USD,USD,2,1019833554,ENABLED,America/Los_Angeles,False
+LEVEL - South Lake Union,USD,2,3776775468,ENABLED,America/Los_Angeles,False
+Horseshoe Resort,CAD,1,3200323000,ENABLED,America/Toronto,False
+Hope + Flower - USD,USD,2,9514766123,ENABLED,America/Los_Angeles,False
+Hope + Flower,CAD,2,3900931958,ENABLED,America/Los_Angeles,False
+Grouse Mountain,CAD,1,1053543129,ENABLED,America/Vancouver,False
+Grey Owl Surveillance,CAD,2,2871021233,CANCELED,America/Vancouver,False
+Gilmore Place,CAD,2,5411125393,ENABLED,America/Vancouver,False
+GIlmore Place,CAD,2,1691499452,CANCELED,America/Vancouver,False
+Fremont,CAD,2,8183890703,ENABLED,America/Vancouver,False
+Fora,USD,2,3239317697,ENABLED,America/Los_Angeles,False
+Fisgard Asset Management,CAD,1,3065727453,ENABLED,America/Vancouver,False
+Eve - CAD,CAD,2,7162129854,ENABLED,America/Vancouver,False
+Emily Hotel,USD,2,5103895898,ENABLED,America/Los_Angeles,False
+Edgewater,CAD,2,3503642555,CANCELED,America/Vancouver,False
+Dine Solette - USD,USD,2,8838130833,ENABLED,America/Chicago,False
+Dialtone Coffee + Wine Bar,USD,2,6759983531,ENABLED,America/Chicago,False
+Colwood Corners (CAD),CAD,2,1207326203,CANCELED,America/Vancouver,False
+Colwood Corners,CAD,2,8549665131,ENABLED,America/Vancouver,False
+Charleson,CAD,2,5423037263,CANCELED,America/Vancouver,False
+Centreview,CAD,2,7624478624,CANCELED,America/Vancouver,False
+Central,CAD,2,8485273391,CANCELED,America/Vancouver,False
+Catering Institute (MonkeyMedia),CAD,1,8702352020,ENABLED,America/Toronto,False
+Cariboo Regional District,CAD,1,7931209458,CANCELED,America/Vancouver,False
+Canvas,CAD,2,9964973879,CANCELED,America/Vancouver,False
+Canterbury Coffee,CAD,1,7605068129,ENABLED,America/Vancouver,False
+Canadian Mountain Holidays (CMH),CAD,1,4914922043,ENABLED,America/Los_Angeles,False
+Canada Soccer (Old),CAD,1,2329249601,ENABLED,America/Toronto,False
+Cambie Gardens,CAD,2,6544623103,ENABLED,America/Vancouver,False
+Cambie Gardens,CAD,2,8301617801,CANCELED,America/Vancouver,False
+CG Industrial Specialties Ltd.,CAD,1,9742603955,CANCELED,America/Vancouver,False
+Brookmere,CAD,2,8751083022,CANCELED,America/Vancouver,False
+Bella Coola,CAD,1,8198918873,ENABLED,America/Vancouver,False
+Banff & Lake Louise Tourism,CAD,2,2360162182,ENABLED,America/Edmonton,False
+BB Ski Canada 2020,USD,1,5358426558,CANCELED,America/St_Johns,False
+Animal Inside Out (BW),CAD,1,6411122077,ENABLED,America/Vancouver,False
+Agave Apartments,USD,2,3787732794,ENABLED,America/Phoenix,False
+825 South Hill - USD,USD,2,8026968339,ENABLED,America/Los_Angeles,False
+825 South Hill,CAD,2,3366763431,ENABLED,America/Los_Angeles,False
+369 Grand - USD,USD,2,3548373750,ENABLED,America/Los_Angeles,False
+3355 North Road,CAD,2,7457685074,CANCELED,America/Vancouver,False
+1335 Howe - 1,CAD,2,9516940380,CANCELED,America/Vancouver,False
+1335 Howe,CAD,2,4260519015,ENABLED,America/Vancouver,False
+1335 Howe,CAD,2,2829699886,CANCELED,America/Vancouver,False
+,CAD,1,8249912136,CANCELED,America/Toronto,False
+,USD,1,7982992391,ENABLED,America/Vancouver,False
+,CAD,1,8243914823,CANCELED,America/Vancouver,False
+,CAD,1,9988975274,CANCELED,America/Vancouver,False

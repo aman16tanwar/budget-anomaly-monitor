@@ -3,3 +3,11 @@ __pycache__/
 *.pyc
 .venv/
 meta.json
+
+# Credential files - keep these secure and out of git
+*.json
+client_secret_*.json
+googleads.json
+meta.json
+*.key
+*.pem
