@@ -2,14 +2,9 @@
 .git
 .gitignore
 
-# Documentation  
-*.md
-docs/
-README.md
-
-# Testing
-test_*.py
-*_test.py
+# Testing (keep for now - we might need them)
+# test_*.py
+# *_test.py
 
 # Development
 .vscode/
@@ -19,7 +14,6 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-env/
 .env.local
 .env.development
 
@@ -44,12 +38,6 @@ node_modules/
 # Cache
 .cache/
 .pytest_cache/
-
-# Local development only
-run_monitor_direct.py
-meta_main.py
-google_ads_main.py
-generate_user_credentials.py
 
 # Backup files
 *.backup
