@@ -33,8 +33,6 @@ steps:
       - '3'
       - '--parallelism'
       - '1'
-      - '--task-count'
-      - '1'
       # Service account with required permissions
       - '--service-account'
       - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
