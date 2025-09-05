@@ -1,70 +1,75 @@
-# Cloud Build configuration for unified-budget-monitor
-# This file defines the steps to build and deploy the unified monitoring service
+# Cloud Build configuration for unified-budget-monitor (matching working Meta Ads Jobs setup)
 
 steps:
   # Step 1: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/unified-budget-monitor:$COMMIT_SHA', '.']
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/unified-budget-monitor:$COMMIT_SHA'
+      - '.'
     dir: 'Unified Alert'
 
-  # Step 2: Push to Container Registry
+  # Step 2: Push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/unified-budget-monitor:$COMMIT_SHA']
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/unified-budget-monitor:$COMMIT_SHA'
 
-  # Step 3: Deploy to Cloud Run Service (like Meta Ads)
+  # Step 3: Deploy as Cloud Run Job (exactly like Meta Ads)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
-      - 'run'
-      - 'deploy'
-      - 'unified-budget-monitor'
-      - '--image'
-      - 'gcr.io/$PROJECT_ID/unified-budget-monitor:$COMMIT_SHA'
-      - '--region'
-      - 'us-central1'
-      - '--platform'
-      - 'managed'
-      - '--no-allow-unauthenticated'  # Requires authentication
-      - '--memory'
-      - '2Gi'
-      - '--cpu'
-      - '1'
-      - '--timeout'
-      - '900'  # 15 minutes for monitoring both platforms
-      - '--max-instances'
-      - '1'  # Keep it simple like Meta Ads
-      # Service account with required permissions (same as Meta Ads)
-      - '--service-account'
-      - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
-      # Environment variables for both platforms
-      - '--set-env-vars'
-      - 'GCP_PROJECT_ID=$PROJECT_ID'
-      # Secrets from Secret Manager (more secure than env vars)
-      - '--update-secrets'
-      - 'META_BUSINESS_ID=meta-business-id:latest'
-      - '--update-secrets'
-      - 'META_ACCESS_TOKEN=meta-access-token:latest'
-      - '--update-secrets'
-      - 'META_APP_SECRET=meta-app-secret:latest'
-      - '--update-secrets'
-      - 'META_APP_ID=meta-app-id:latest'
-      - '--update-secrets'
-      - 'GOOGLE_ADS_DEVELOPER_TOKEN=google-ads-developer-token:latest'
-      - '--update-secrets'
-      - 'GOOGLE_ADS_LOGIN_CUSTOMER_ID=google-ads-login-customer-id:latest'
-      - '--update-secrets'
-      - 'GOOGLE_ADS_CLIENT_ID=google-ads-client-id:latest'
-      - '--update-secrets'
-      - 'GOOGLE_ADS_CLIENT_SECRET=google-ads-client-secret:latest'
-      - '--update-secrets'
-      - 'GOOGLE_ADS_REFRESH_TOKEN=google-ads-refresh-token:latest'
-      - '--update-secrets'
-      - 'GOOGLE_CHAT_WEBHOOK_URL=google-chat-webhook:latest'
+      - run
+      - jobs
+      - deploy
+      - unified-budget-monitor
+      - --image
+      - us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/unified-budget-monitor:$COMMIT_SHA
+      - --region
+      - us-central1
+      - --service-account
+      - 834340162289-compute@developer.gserviceaccount.com
+      - --set-secrets
+      - META_BUSINESS_ID=meta-business-id:latest
+      - --set-secrets
+      - META_ACCESS_TOKEN=meta-access-token:latest
+      - --set-secrets
+      - META_APP_SECRET=meta-app-secret:latest
+      - --set-secrets
+      - META_APP_ID=meta-app-id:latest
+      - --set-secrets
+      - GOOGLE_ADS_DEVELOPER_TOKEN=google-ads-developer-token:latest
+      - --set-secrets
+      - GOOGLE_ADS_LOGIN_CUSTOMER_ID=google-ads-login-customer-id:latest
+      - --set-secrets
+      - GOOGLE_ADS_CLIENT_ID=google-ads-client-id:latest
+      - --set-secrets
+      - GOOGLE_ADS_CLIENT_SECRET=google-ads-client-secret:latest
+      - --set-secrets
+      - GOOGLE_ADS_REFRESH_TOKEN=google-ads-refresh-token:latest
+      - --set-secrets
+      - GOOGLE_CHAT_WEBHOOK_URL=google-chat-webhook:latest
+      - --set-env-vars
+      - GCP_PROJECT_ID=$PROJECT_ID
+      - --memory
+      - 2Gi
+      - --cpu
+      - "1"
+      - --task-timeout
+      - "900"
+      - --max-retries
+      - "3"
+      - --parallelism
+      - "1"
 
 images:
-  - 'gcr.io/$PROJECT_ID/unified-budget-monitor:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/unified-budget-monitor:$COMMIT_SHA'
 
 timeout: '1200s'
+
+# Build-time identity (matching Meta Ads working setup)
+serviceAccount: 'projects/generative-ai-418805/serviceAccounts/834340162289@cloudbuild.gserviceaccount.com'
 
 options:
   logging: CLOUD_LOGGING_ONLY
