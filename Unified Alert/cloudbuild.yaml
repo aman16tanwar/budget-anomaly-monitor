@@ -33,8 +33,9 @@ steps:
       - '3'
       - '--parallelism'
       - '1'
-      # Note: Using default Cloud Build service account
-      # Make sure it has the required permissions for BigQuery, Secret Manager, etc.
+      # Service account with required permissions
+      - '--service-account'
+      - 'extract-meta-ads@generative-ai-418805.iam.gserviceaccount.com'
       # Environment variables for both platforms
       - '--set-env-vars'
       - 'GCP_PROJECT_ID=$PROJECT_ID'
